@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025-2026 Zhijian Yan
 
-#ifndef __SGL_BUILTIN_FONT_H
-#define __SGL_BUILTIN_FONT_H
+#ifndef SGL_BUILTIN_FONT_H
+#define SGL_BUILTIN_FONT_H
 
 const uint8_t sgl_builtin_fixedsys_8x16[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,

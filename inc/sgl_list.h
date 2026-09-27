@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Zhijian Yan
 
-#ifndef __SGL_LIST_H
-#define __SGL_LIST_H
+#ifndef SGL_LIST_H
+#define SGL_LIST_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -10,7 +10,7 @@ extern "C" {
 
 #include <stddef.h>
 
-#define container_of(ptr, type, member)                                        \
+#define container_of(ptr, type, member) \
     ((type *)((char *)(ptr) - offsetof(type, member)))
 
 struct list_head {
@@ -19,7 +19,7 @@ struct list_head {
 };
 
 #define LIST_HEAD_INIT(name) {&(name), &(name)}
-#define LIST_HEAD(name) struct list_head name = LIST_HEAD_INIT(name)
+#define LIST_HEAD(name)      struct list_head name = LIST_HEAD_INIT(name)
 
 static inline void INIT_LIST_HEAD(struct list_head *list) {
     list->next = list;
@@ -75,29 +75,29 @@ static inline int list_empty(const struct list_head *head) {
 
 #define list_entry(ptr, type, member) container_of(ptr, type, member)
 
-#define list_first_entry(ptr, type, member)                                    \
+#define list_first_entry(ptr, type, member) \
     list_entry((ptr)->next, type, member)
 
 #define list_last_entry(ptr, type, member) list_entry((ptr)->prev, type, member)
 
-#define list_next_entry(pos, member)                                           \
+#define list_next_entry(pos, member) \
     list_entry((pos)->member.next, typeof(*(pos)), member)
 
-#define list_prev_entry(pos, member)                                           \
+#define list_prev_entry(pos, member) \
     list_entry((pos)->member.prev, typeof(*(pos)), member)
 
-#define list_for_each(pos, head)                                               \
+#define list_for_each(pos, head) \
     for (pos = (head)->next; !list_is_head(pos, (head)); pos = pos->next)
 
-#define list_for_each_safe(pos, n, head)                                       \
-    for (pos = (head)->next, n = pos->next; !list_is_head(pos, (head));        \
+#define list_for_each_safe(pos, n, head)                                \
+    for (pos = (head)->next, n = pos->next; !list_is_head(pos, (head)); \
          pos = n, n = pos->next)
 
 #define list_entry_is_head(pos, head, member) list_is_head(&pos->member, (head))
 
-#define list_for_each_entry(pos, head, member)                                 \
-    for (pos = list_first_entry(head, typeof(*pos), member);                   \
-         !list_entry_is_head(pos, head, member);                               \
+#define list_for_each_entry(pos, head, member)               \
+    for (pos = list_first_entry(head, typeof(*pos), member); \
+         !list_entry_is_head(pos, head, member);             \
          pos = list_next_entry(pos, member))
 
 #ifdef __cplusplus

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025-2026 Zhijian Yan
 
-#ifndef __SGL_COMMON_H
-#define __SGL_COMMON_H
+#ifndef SGL_COMMON_H
+#define SGL_COMMON_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -10,16 +10,16 @@ extern "C" {
 
 #include "sgl_types.h"
 
-#define SGL_LOGICAL_OFFSET(x, y)                                               \
-    {                                                                          \
-        (x) += scr->logical_offset_x;                                          \
-        (y) += scr->logical_offset_y;                                          \
+#define sgl_logical_offset(x, y)      \
+    {                                 \
+        (x) += scr->logical_offset_x; \
+        (y) += scr->logical_offset_y; \
     }
 
-#define SGL_BUFFER_OFFSET(x, y)                                                \
-    {                                                                          \
-        (x) -= scr->buffer_offset_x;                                           \
-        (y) -= scr->buffer_offset_y;                                           \
+#define sgl_buffer_offset(x, y)      \
+    {                                \
+        (x) -= scr->buffer_offset_x; \
+        (y) -= scr->buffer_offset_y; \
     }
 
 static inline void sgl_set_rect(sgl_rect_t *rect, int32_t x, int32_t y,
@@ -87,36 +87,36 @@ static inline int sgl_set_area_within(sgl_area_t *area,
 static inline void sgl_align(int32_t *x, int32_t *y, int32_t w, int32_t h,
                              sgl_align_t align) {
     switch (align) {
-    case SGL_ALIGN_UP_LEFT:
-        break;
-    case SGL_ALIGN_UP_RIGHT:
-        *x -= w - 1;
-        break;
-    case SGL_ALIGN_DOWN_LEFT:
-        *y -= h - 1;
-        break;
-    case SGL_ALIGN_DOWN_RIGHT:
-        *x -= w - 1;
-        *y -= h - 1;
-        break;
-    case SGL_ALIGN_CENTER:
-        *x -= w / 2;
-        *y -= h / 2;
-        break;
-    case SGL_ALIGN_UP_CENTER:
-        *x -= w / 2;
-        break;
-    case SGL_ALIGN_DOWN_CENTER:
-        *x -= w / 2;
-        *y -= h - 1;
-        break;
-    case SGL_ALIGN_LEFT_CENTER:
-        *y -= h / 2;
-        break;
-    case SGL_ALIGN_RIGHT_CENTER:
-        *x -= w - 1;
-        *y -= h / 2;
-        break;
+        case SGL_ALIGN_UP_LEFT:
+            break;
+        case SGL_ALIGN_UP_RIGHT:
+            *x -= w - 1;
+            break;
+        case SGL_ALIGN_DOWN_LEFT:
+            *y -= h - 1;
+            break;
+        case SGL_ALIGN_DOWN_RIGHT:
+            *x -= w - 1;
+            *y -= h - 1;
+            break;
+        case SGL_ALIGN_CENTER:
+            *x -= w / 2;
+            *y -= h / 2;
+            break;
+        case SGL_ALIGN_UP_CENTER:
+            *x -= w / 2;
+            break;
+        case SGL_ALIGN_DOWN_CENTER:
+            *x -= w / 2;
+            *y -= h - 1;
+            break;
+        case SGL_ALIGN_LEFT_CENTER:
+            *y -= h / 2;
+            break;
+        case SGL_ALIGN_RIGHT_CENTER:
+            *x -= w - 1;
+            *y -= h / 2;
+            break;
     }
 }
 
@@ -189,20 +189,20 @@ static inline void sgl_rotate_point_ccw(sgl_screen_t *scr, int32_t *x,
                                         int32_t *y) {
     int32_t temp = *x;
     switch (scr->rotate) {
-    case SGL_ROTATE_0:
-        break;
-    case SGL_ROTATE_90:
-        *x = scr->max_y - *y;
-        *y = temp;
-        break;
-    case SGL_ROTATE_180:
-        *x = scr->max_x - *x;
-        *y = scr->max_y - *y;
-        break;
-    case SGL_ROTATE_270:
-        *x = *y;
-        *y = scr->max_x - temp;
-        break;
+        case SGL_ROTATE_0:
+            break;
+        case SGL_ROTATE_90:
+            *x = scr->max_y - *y;
+            *y = temp;
+            break;
+        case SGL_ROTATE_180:
+            *x = scr->max_x - *x;
+            *y = scr->max_y - *y;
+            break;
+        case SGL_ROTATE_270:
+            *x = *y;
+            *y = scr->max_x - temp;
+            break;
     }
 }
 
@@ -210,20 +210,20 @@ static inline void sgl_rotate_point_cw(sgl_screen_t *scr, int32_t *x,
                                        int32_t *y) {
     int32_t temp = *x;
     switch (scr->rotate) {
-    case SGL_ROTATE_0:
-        break;
-    case SGL_ROTATE_90:
-        *x = *y;
-        *y = scr->max_y - temp;
-        break;
-    case SGL_ROTATE_180:
-        *x = scr->max_x - *x;
-        *y = scr->max_y - *y;
-        break;
-    case SGL_ROTATE_270:
-        *x = scr->max_x - *y;
-        *y = temp;
-        break;
+        case SGL_ROTATE_0:
+            break;
+        case SGL_ROTATE_90:
+            *x = *y;
+            *y = scr->max_y - temp;
+            break;
+        case SGL_ROTATE_180:
+            *x = scr->max_x - *x;
+            *y = scr->max_y - *y;
+            break;
+        case SGL_ROTATE_270:
+            *x = scr->max_x - *y;
+            *y = temp;
+            break;
     }
 }
 
@@ -232,26 +232,26 @@ static inline void sgl_rotate_rect_ccw(sgl_screen_t *scr, int32_t *x,
     int32_t temp1 = *x;
     int32_t temp2 = *w;
     switch (scr->rotate) {
-    case SGL_ROTATE_0:
-        break;
-    case SGL_ROTATE_90:
-        *x = scr->max_y - *y;
-        *y = temp1;
-        *w = -*h;
-        *h = temp2;
-        break;
-    case SGL_ROTATE_180:
-        *x = scr->max_x - *x;
-        *y = scr->max_y - *y;
-        *w = -*w;
-        *h = -*h;
-        break;
-    case SGL_ROTATE_270:
-        *x = *y;
-        *y = scr->max_x - temp1;
-        *w = *h;
-        *h = -temp2;
-        break;
+        case SGL_ROTATE_0:
+            break;
+        case SGL_ROTATE_90:
+            *x = scr->max_y - *y;
+            *y = temp1;
+            *w = -*h;
+            *h = temp2;
+            break;
+        case SGL_ROTATE_180:
+            *x = scr->max_x - *x;
+            *y = scr->max_y - *y;
+            *w = -*w;
+            *h = -*h;
+            break;
+        case SGL_ROTATE_270:
+            *x = *y;
+            *y = scr->max_x - temp1;
+            *w = *h;
+            *h = -temp2;
+            break;
     }
 }
 
@@ -260,26 +260,26 @@ static inline void sgl_rotate_rect_cw(sgl_screen_t *scr, int32_t *x, int32_t *y,
     int32_t temp1 = *x;
     int32_t temp2 = *w;
     switch (scr->rotate) {
-    case SGL_ROTATE_0:
-        break;
-    case SGL_ROTATE_90:
-        *x = *y;
-        *y = scr->max_y - temp1;
-        *w = *h;
-        *h = -temp2;
-        break;
-    case SGL_ROTATE_180:
-        *x = scr->max_x - *x;
-        *y = scr->max_y - *y;
-        *w = -*w;
-        *h = -*h;
-        break;
-    case SGL_ROTATE_270:
-        *x = scr->max_x - *y;
-        *y = temp1;
-        *w = -*h;
-        *h = temp2;
-        break;
+        case SGL_ROTATE_0:
+            break;
+        case SGL_ROTATE_90:
+            *x = *y;
+            *y = scr->max_y - temp1;
+            *w = *h;
+            *h = -temp2;
+            break;
+        case SGL_ROTATE_180:
+            *x = scr->max_x - *x;
+            *y = scr->max_y - *y;
+            *w = -*w;
+            *h = -*h;
+            break;
+        case SGL_ROTATE_270:
+            *x = scr->max_x - *y;
+            *y = temp1;
+            *w = -*h;
+            *h = temp2;
+            break;
     }
 }
 

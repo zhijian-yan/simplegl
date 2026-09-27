@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Zhijian Yan
 
-#ifndef __SGL_TYPES_H
-#define __SGL_TYPES_H
+#ifndef SGL_TYPES_H
+#define SGL_TYPES_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -152,7 +152,7 @@ struct sgl_screen {
     uint32_t frame_count;
     sgl_slice_state_t slice_state;
     sgl_rotate_t rotate;
-    sgl_widget_t root_widget;
+    sgl_widget_t root;
     void *user_data;
     void (*flush)(void *buffer, sgl_rect_t *refresh);
     void (*draw_pixel)(sgl_screen_t *scr, int32_t x, int32_t y, uint32_t color);

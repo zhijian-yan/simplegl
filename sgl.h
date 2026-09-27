@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025-2026 Zhijian Yan
 
-#ifndef __SGL_H
-#define __SGL_H
+#ifndef SGL_H
+#define SGL_H
 
 #ifdef __cplusplus
 extern "C" {
