@@ -127,11 +127,15 @@ typedef struct {
     void (*frame_end)(void *user_data);
 } sgl_config_t;
 
+typedef void (*sgl_draw_pixel_t)(sgl_screen_t *scr, int32_t x, int32_t y,
+                                 uint32_t color);
+
 struct sgl_screen {
     void *buffer;
     uint32_t buffer_size;
     uint32_t buffer_width;
     uint32_t pixel_num;
+    uint32_t pixel_size;
     uint32_t pixel_index;
     uint32_t hor_res;
     uint32_t ver_res;
@@ -155,7 +159,7 @@ struct sgl_screen {
     sgl_widget_t root;
     void *user_data;
     void (*flush)(void *buffer, sgl_rect_t *refresh);
-    void (*draw_pixel)(sgl_screen_t *scr, int32_t x, int32_t y, uint32_t color);
+    sgl_draw_pixel_t draw_pixel;
     void (*frame_start)(void *user_data);
     void (*frame_end)(void *user_data);
 };

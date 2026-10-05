@@ -119,6 +119,7 @@ int sgl_set_draw_pixel(sgl_screen_t *scr, uint32_t hor_res,
         return -1;
     scr->draw_pixel = draw_pixel;
     scr->pixel_num = pixel_num;
+    scr->pixel_size = pixel_size;
     scr->buffer_size = pixel_num * pixel_size;
     return 0;
 }

@@ -5,9 +5,14 @@
 #include "../inc/sgl_common.h"
 #include "../inc/sgl_line.h"
 
+static inline uint32_t sgl_bitmap_24b_value(const uint8_t *pixel) {
+    return (uint32_t)pixel[0] | ((uint32_t)pixel[1] << 8) |
+           ((uint32_t)pixel[2] << 16);
+}
+
 static inline void sgl_rotate_bitmap(sgl_screen_t *scr, int32_t *x, int32_t *y,
                                      int32_t *dx, int32_t *dy, int32_t w,
-                                     int32_t h, uint32_t bmp_w, uint32_t bmp_h,
+                                     int32_t h, int32_t bmp_w, int32_t bmp_h,
                                      sgl_dir_t *dir) {
     int32_t temp;
     sgl_rotate_point_ccw(scr, x, y);
@@ -54,143 +59,221 @@ static inline void sgl_rotate_bitmap(sgl_screen_t *scr, int32_t *x, int32_t *y,
     *dir = (sgl_dir_t)((*dir + scr->rotate) & 3);
 }
 
-void sgl_show_mono_bitmap(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
-                          int32_t h, const uint8_t *bitmap, sgl_dir_t dir,
-                          uint32_t color) {
-    int32_t dx, dy, temp;
-    uint32_t bmp_w = w, bmp_h = h, bmp_x, bmp_y, mask, index, i, j;
-    sgl_logical_offset(x, y);
-    dx = x;
-    dy = y;
+static int sgl_bitmap_prepare(sgl_screen_t *scr, sgl_dir_t dir, int32_t *x,
+                              int32_t *y, int32_t *w, int32_t *h, int32_t *row,
+                              int32_t *col, int32_t *row_dir, int32_t *col_dir,
+                              int32_t *walk_x) {
+    int32_t bmp_w = *w, bmp_h = *h;
+    int32_t logical_x, logical_y, dx, dy;
+    sgl_logical_offset(*x, *y);
+    logical_x = *x;
+    logical_y = *y;
     if (dir == SGL_DIR_UP || dir == SGL_DIR_DOWN) {
-        if (sgl_clip_rect(&scr->drawable_area, &x, &y, &w, &h))
-            return;
+        if (sgl_clip_rect(&scr->drawable_area, x, y, w, h))
+            return -1;
     } else {
-        if (sgl_clip_rect(&scr->drawable_area, &x, &y, &h, &w))
-            return;
+        if (sgl_clip_rect(&scr->drawable_area, x, y, h, w))
+            return -1;
     }
-    dx = x - dx;
-    dy = y - dy;
-    sgl_rotate_bitmap(scr, &x, &y, &dx, &dy, w, h, bmp_w, bmp_h, &dir);
-    sgl_buffer_offset(x, y);
+    dx = *x - logical_x;
+    dy = *y - logical_y;
+    sgl_rotate_bitmap(scr, x, y, &dx, &dy, *w, *h, bmp_w, bmp_h, &dir);
+    sgl_buffer_offset(*x, *y);
     switch (dir) {
         case SGL_DIR_UP:
-            for (i = 0; i < h; ++i) {
-                bmp_y = dy + i;
-                index = (bmp_y >> 3) * bmp_w;
-                mask = 1U << (bmp_y & 7);
-                temp = y + i;
-                for (j = 0; j < w; ++j) {
-                    bmp_x = dx + j;
-                    if (bitmap[index + bmp_x] & mask)
-                        scr->draw_pixel(scr, x + j, temp, color);
-                }
-            }
+            *row = dy;
+            *col = dx;
+            *row_dir = 1;
+            *col_dir = 1;
+            *walk_x = 1;
             break;
         case SGL_DIR_RIGHT:
-            for (i = 0; i < h; ++i) {
-                bmp_y = (bmp_h - 1) - dx - i;
-                index = (bmp_y >> 3) * bmp_w;
-                mask = 1U << (bmp_y & 7);
-                temp = x + i;
-                for (j = 0; j < w; ++j) {
-                    bmp_x = dy + j;
-                    if (bitmap[index + bmp_x] & mask)
-                        scr->draw_pixel(scr, temp, y + j, color);
-                }
-            }
+            *row = (bmp_h - 1) - dx;
+            *col = dy;
+            *row_dir = -1;
+            *col_dir = 1;
+            *walk_x = 0;
             break;
         case SGL_DIR_LEFT:
-            for (i = 0; i < h; ++i) {
-                bmp_y = dx + i;
-                index = (bmp_y >> 3) * bmp_w;
-                mask = 1U << (bmp_y & 7);
-                temp = x + i;
-                for (j = 0; j < w; ++j) {
-                    bmp_x = (bmp_w - 1) - dy - j;
-                    if (bitmap[index + bmp_x] & mask)
-                        scr->draw_pixel(scr, temp, y + j, color);
-                }
-            }
+            *row = dx;
+            *col = (bmp_w - 1) - dy;
+            *row_dir = 1;
+            *col_dir = -1;
+            *walk_x = 0;
             break;
         case SGL_DIR_DOWN:
-            for (i = 0; i < h; ++i) {
-                bmp_y = (bmp_h - 1) - dy - i;
-                index = (bmp_y >> 3) * bmp_w;
-                mask = 1U << (bmp_y & 7);
-                temp = y + i;
-                for (j = 0; j < w; ++j) {
-                    bmp_x = (bmp_w - 1) - dx - j;
-                    if (bitmap[index + bmp_x] & mask)
-                        scr->draw_pixel(scr, x + j, temp, color);
-                }
-            }
+            *row = (bmp_h - 1) - dy;
+            *col = (bmp_w - 1) - dx;
+            *row_dir = -1;
+            *col_dir = -1;
+            *walk_x = 1;
             break;
+    }
+    return 0;
+}
+
+void sgl_show_bitmap_1b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
+                        int32_t h, const uint8_t *bitmap, sgl_dir_t dir,
+                        uint32_t color) {
+    int32_t row, col, row_dir, col_dir, walk_x, index, i, j, bmp_w = w;
+    uint32_t mask;
+    sgl_draw_pixel_t draw_pixel = scr->draw_pixel;
+    if (sgl_bitmap_prepare(scr, dir, &x, &y, &w, &h, &row, &col, &row_dir,
+                           &col_dir, &walk_x))
+        return;
+    if (walk_x) {
+        for (i = 0; i < h; ++i) {
+            index = (row >> 3) * bmp_w + col;
+            mask = 1U << (row & 7);
+            for (j = 0; j < w; ++j, index += col_dir) {
+                if (bitmap[index] & mask)
+                    draw_pixel(scr, x + j, y, color);
+            }
+            row += row_dir;
+            ++y;
+        }
+    } else {
+        for (i = 0; i < h; ++i) {
+            index = (row >> 3) * bmp_w + col;
+            mask = 1U << (row & 7);
+            for (j = 0; j < w; ++j, index += col_dir) {
+                if (bitmap[index] & mask)
+                    draw_pixel(scr, x, y + j, color);
+            }
+            row += row_dir;
+            ++x;
+        }
     }
 }
 
-void sgl_show_rgb565_bitmap(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
-                            int32_t h, const uint16_t *bitmap, sgl_dir_t dir) {
-    int32_t dx, dy, temp;
-    uint32_t bmp_w = w, bmp_h = h, bmp_x, bmp_y, index, i, j;
-    sgl_logical_offset(x, y);
-    dx = x;
-    dy = y;
-    if (dir == SGL_DIR_UP || dir == SGL_DIR_DOWN) {
-        if (sgl_clip_rect(&scr->drawable_area, &x, &y, &w, &h))
-            return;
+void sgl_show_bitmap_8b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
+                        int32_t h, const uint8_t *bitmap, sgl_dir_t dir) {
+    const uint8_t *src;
+    int32_t row, col, row_dir, col_dir, walk_x, src_step, src_row, i, j;
+    int32_t bmp_w = w;
+    sgl_draw_pixel_t draw_pixel = scr->draw_pixel;
+    if (sgl_bitmap_prepare(scr, dir, &x, &y, &w, &h, &row, &col, &row_dir,
+                           &col_dir, &walk_x))
+        return;
+    src = bitmap + row * bmp_w + col;
+    src_step = col_dir;
+    src_row = row_dir * bmp_w;
+    if (walk_x) {
+        for (i = 0; i < h; ++i) {
+            const uint8_t *p = src;
+            for (j = 0; j < w; ++j, p += src_step) {
+                draw_pixel(scr, x + j, y, *p);
+            }
+            src += src_row;
+            ++y;
+        }
     } else {
-        if (sgl_clip_rect(&scr->drawable_area, &x, &y, &h, &w))
-            return;
+        for (i = 0; i < h; ++i) {
+            const uint8_t *p = src;
+            for (j = 0; j < w; ++j, p += src_step) {
+                draw_pixel(scr, x, y + j, *p);
+            }
+            src += src_row;
+            ++x;
+        }
     }
-    dx = x - dx;
-    dy = y - dy;
-    sgl_rotate_bitmap(scr, &x, &y, &dx, &dy, w, h, bmp_w, bmp_h, &dir);
-    sgl_buffer_offset(x, y);
-    switch (dir) {
-        case SGL_DIR_UP:
-            for (i = 0; i < h; ++i) {
-                bmp_y = dy + i;
-                index = bmp_y * bmp_w;
-                temp = y + i;
-                for (j = 0; j < w; ++j) {
-                    bmp_x = dx + j;
-                    scr->draw_pixel(scr, x + j, temp, bitmap[index + bmp_x]);
-                }
+}
+
+void sgl_show_bitmap_16b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
+                         int32_t h, const uint16_t *bitmap, sgl_dir_t dir) {
+    const uint8_t *src;
+    int32_t row, col, row_dir, col_dir, walk_x, src_step, src_row, i, j;
+    int32_t bmp_w = w;
+    sgl_draw_pixel_t draw_pixel = scr->draw_pixel;
+    if (sgl_bitmap_prepare(scr, dir, &x, &y, &w, &h, &row, &col, &row_dir,
+                           &col_dir, &walk_x))
+        return;
+    src = (const uint8_t *)(bitmap + row * bmp_w + col);
+    src_step = col_dir * (int32_t)sizeof(*bitmap);
+    src_row = row_dir * bmp_w * (int32_t)sizeof(*bitmap);
+    if (walk_x) {
+        for (i = 0; i < h; ++i) {
+            const uint8_t *p = src;
+            for (j = 0; j < w; ++j, p += src_step) {
+                draw_pixel(scr, x + j, y, *(const uint16_t *)p);
             }
-            break;
-        case SGL_DIR_RIGHT:
-            for (i = 0; i < h; ++i) {
-                bmp_y = (bmp_h - 1) - dx - i;
-                index = bmp_y * bmp_w;
-                temp = x + i;
-                for (j = 0; j < w; ++j) {
-                    bmp_x = dy + j;
-                    scr->draw_pixel(scr, temp, y + j, bitmap[index + bmp_x]);
-                }
+            src += src_row;
+            ++y;
+        }
+    } else {
+        for (i = 0; i < h; ++i) {
+            const uint8_t *p = src;
+            for (j = 0; j < w; ++j, p += src_step) {
+                draw_pixel(scr, x, y + j, *(const uint16_t *)p);
             }
-            break;
-        case SGL_DIR_LEFT:
-            for (i = 0; i < h; ++i) {
-                bmp_y = dx + i;
-                index = bmp_y * bmp_w;
-                temp = x + i;
-                for (j = 0; j < w; ++j) {
-                    bmp_x = (bmp_w - 1) - dy - j;
-                    scr->draw_pixel(scr, temp, y + j, bitmap[index + bmp_x]);
-                }
+            src += src_row;
+            ++x;
+        }
+    }
+}
+
+void sgl_show_bitmap_24b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
+                         int32_t h, const uint8_t *bitmap, sgl_dir_t dir) {
+    const uint8_t *src;
+    int32_t row, col, row_dir, col_dir, walk_x, src_step, src_row, i, j;
+    int32_t bmp_w = w;
+    sgl_draw_pixel_t draw_pixel = scr->draw_pixel;
+    if (sgl_bitmap_prepare(scr, dir, &x, &y, &w, &h, &row, &col, &row_dir,
+                           &col_dir, &walk_x))
+        return;
+    src = bitmap + (row * bmp_w + col) * 3;
+    src_step = col_dir * 3;
+    src_row = row_dir * bmp_w * 3;
+    if (walk_x) {
+        for (i = 0; i < h; ++i) {
+            const uint8_t *p = src;
+            for (j = 0; j < w; ++j, p += src_step) {
+                draw_pixel(scr, x + j, y, sgl_bitmap_24b_value(p));
             }
-            break;
-        case SGL_DIR_DOWN:
-            for (i = 0; i < h; ++i) {
-                bmp_y = (bmp_h - 1) - dy - i;
-                index = bmp_y * bmp_w;
-                temp = y + i;
-                for (j = 0; j < w; ++j) {
-                    bmp_x = (bmp_w - 1) - dx - j;
-                    scr->draw_pixel(scr, x + j, temp, bitmap[index + bmp_x]);
-                }
+            src += src_row;
+            ++y;
+        }
+    } else {
+        for (i = 0; i < h; ++i) {
+            const uint8_t *p = src;
+            for (j = 0; j < w; ++j, p += src_step) {
+                draw_pixel(scr, x, y + j, sgl_bitmap_24b_value(p));
             }
-            break;
+            src += src_row;
+            ++x;
+        }
+    }
+}
+
+void sgl_show_bitmap_32b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
+                         int32_t h, const uint32_t *bitmap, sgl_dir_t dir) {
+    const uint8_t *src;
+    int32_t row, col, row_dir, col_dir, walk_x, src_step, src_row, i, j;
+    int32_t bmp_w = w;
+    sgl_draw_pixel_t draw_pixel = scr->draw_pixel;
+    if (sgl_bitmap_prepare(scr, dir, &x, &y, &w, &h, &row, &col, &row_dir,
+                           &col_dir, &walk_x))
+        return;
+    src = (const uint8_t *)(bitmap + row * bmp_w + col);
+    src_step = col_dir * (int32_t)sizeof(*bitmap);
+    src_row = row_dir * bmp_w * (int32_t)sizeof(*bitmap);
+    if (walk_x) {
+        for (i = 0; i < h; ++i) {
+            const uint8_t *p = src;
+            for (j = 0; j < w; ++j, p += src_step) {
+                draw_pixel(scr, x + j, y, *(const uint32_t *)p);
+            }
+            src += src_row;
+            ++y;
+        }
+    } else {
+        for (i = 0; i < h; ++i) {
+            const uint8_t *p = src;
+            for (j = 0; j < w; ++j, p += src_step) {
+                draw_pixel(scr, x, y + j, *(const uint32_t *)p);
+            }
+            src += src_row;
+            ++x;
+        }
     }
 }

@@ -19,7 +19,7 @@ void sgl_show_string(sgl_screen_t *scr, int32_t x, int32_t y, const char *str,
         case SGL_DIR_UP:
             sgl_align(&x, &y, fontwidth * length, fontheight, align);
             for (i = 0; i < length; ++i)
-                sgl_show_mono_bitmap(
+                sgl_show_bitmap_1b(
                     scr, x + i * fontwidth, y, fontwidth, fontheight,
                     &sgl_builtin_fixedsys_8x16[(str[i] - ' ') * fontsize], dir,
                     color);
@@ -27,7 +27,7 @@ void sgl_show_string(sgl_screen_t *scr, int32_t x, int32_t y, const char *str,
         case SGL_DIR_RIGHT:
             sgl_align(&x, &y, fontheight, fontwidth * length, align);
             for (i = 0; i < length; ++i)
-                sgl_show_mono_bitmap(
+                sgl_show_bitmap_1b(
                     scr, x, y + i * fontwidth, fontwidth, fontheight,
                     &sgl_builtin_fixedsys_8x16[(str[i] - ' ') * fontsize], dir,
                     color);
@@ -36,7 +36,7 @@ void sgl_show_string(sgl_screen_t *scr, int32_t x, int32_t y, const char *str,
             sgl_align(&x, &y, fontheight, fontwidth * length, align);
             y += (length - 1) * fontwidth;
             for (i = 0; i < length; ++i)
-                sgl_show_mono_bitmap(
+                sgl_show_bitmap_1b(
                     scr, x, y - i * fontwidth, fontwidth, fontheight,
                     &sgl_builtin_fixedsys_8x16[(str[i] - ' ') * fontsize], dir,
                     color);
@@ -45,7 +45,7 @@ void sgl_show_string(sgl_screen_t *scr, int32_t x, int32_t y, const char *str,
             sgl_align(&x, &y, fontwidth * length, fontheight, align);
             x += (length - 1) * fontwidth;
             for (i = 0; i < length; ++i)
-                sgl_show_mono_bitmap(
+                sgl_show_bitmap_1b(
                     scr, x - i * fontwidth, y, fontwidth, fontheight,
                     &sgl_builtin_fixedsys_8x16[(str[i] - ' ') * fontsize], dir,
                     color);
