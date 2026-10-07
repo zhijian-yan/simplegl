@@ -103,16 +103,20 @@ typedef struct sgl_screen sgl_screen_t;
 
 typedef struct sgl_widget sgl_widget_t;
 
-typedef void (*sgl_widget_draw_t)(sgl_screen_t *scr, sgl_widget_t *widget);
+typedef void (*sgl_draw_t)(sgl_screen_t *scr, sgl_widget_t *widget);
+
+typedef struct {
+    sgl_draw_t draw;
+} sgl_widget_vtable_t;
 
 struct sgl_widget {
     sgl_widget_t *parent;
     struct list_head sibling;
     struct list_head children;
     sgl_rect_t rect;
-    uint16_t flags;
-    uint16_t draw_index;
+    sgl_widget_vtable_t *vtable;
     void *user_data;
+    uint16_t flags;
 };
 
 typedef struct {
@@ -157,6 +161,7 @@ struct sgl_screen {
     sgl_slice_state_t slice_state;
     sgl_rotate_t rotate;
     sgl_widget_t root;
+    sgl_widget_vtable_t background;
     void *user_data;
     void (*flush)(void *buffer, sgl_rect_t *refresh);
     sgl_draw_pixel_t draw_pixel;

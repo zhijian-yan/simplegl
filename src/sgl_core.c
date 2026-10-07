@@ -23,6 +23,7 @@ int sgl_init(sgl_screen_t *scr, sgl_config_t *config) {
         return -1;
     INIT_LIST_HEAD(&scr->root.sibling);
     INIT_LIST_HEAD(&scr->root.children);
+    scr->root.vtable = &scr->background;
     sgl_set_screen_rotation(scr, config->rotate);
     scr->dirty_rect = scr->root.rect;
     return 0;
@@ -71,7 +72,6 @@ static void sgl_buffer_slice(sgl_screen_t *scr) {
 static void sgl_draw(sgl_screen_t *scr, sgl_widget_t *widget, int32_t offset_x,
                      int32_t offset_y, const sgl_area_t *parent_bounds) {
     sgl_widget_t *child;
-    sgl_widget_draw_t draw;
     sgl_area_t bounds;
     scr->logical_offset_x = offset_x;
     scr->logical_offset_y = offset_y;
@@ -80,9 +80,8 @@ static void sgl_draw(sgl_screen_t *scr, sgl_widget_t *widget, int32_t offset_x,
                             offset_y + widget->rect.h - 1) == 0) {
         scr->widget_bounds = bounds;
         scr->drawable_area = bounds;
-        draw = sgl_widget_get_draw(widget->draw_index);
-        if (draw)
-            draw(scr, widget);
+        if (widget->vtable->draw)
+            widget->vtable->draw(scr, widget);
     }
     list_for_each_entry(child, &widget->children, sibling) {
         sgl_draw(scr, child, offset_x + child->rect.x, offset_y + child->rect.y,
