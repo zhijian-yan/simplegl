@@ -10,16 +10,16 @@ extern "C" {
 
 #include "sgl_types.h"
 
-#define sgl_logical_offset(x, y)      \
-    {                                 \
-        (x) += scr->logical_offset_x; \
-        (y) += scr->logical_offset_y; \
+#define sgl_logical_offset(x, y)       \
+    {                                  \
+        (x) += disp->logical_offset_x; \
+        (y) += disp->logical_offset_y; \
     }
 
-#define sgl_buffer_offset(x, y)      \
-    {                                \
-        (x) -= scr->buffer_offset_x; \
-        (y) -= scr->buffer_offset_y; \
+#define sgl_buffer_offset(x, y)       \
+    {                                 \
+        (x) -= disp->buffer_offset_x; \
+        (y) -= disp->buffer_offset_y; \
     }
 
 static inline void sgl_set_rect(sgl_rect_t *rect, int32_t x, int32_t y,
@@ -171,111 +171,111 @@ static inline int sgl_clip_rect(const sgl_area_t *bounds, int32_t *x,
     return 0;
 }
 
-static inline void sgl_draw_hpixel(sgl_screen_t *scr, int32_t x, int32_t y,
+static inline void sgl_draw_hpixel(sgl_display_t *disp, int32_t x, int32_t y,
                                    int32_t len, uint32_t color) {
     int32_t x1 = x + len;
     for (len = (len > 0) ? 1 : -1; x != x1; x += len)
-        scr->draw_pixel(scr, x, y, color);
+        disp->draw_pixel(disp, x, y, color);
 }
 
-static inline void sgl_draw_vpixel(sgl_screen_t *scr, int32_t x, int32_t y,
+static inline void sgl_draw_vpixel(sgl_display_t *disp, int32_t x, int32_t y,
                                    int32_t len, uint32_t color) {
     int32_t y1 = y + len;
     for (len = (len > 0) ? 1 : -1; y != y1; y += len)
-        scr->draw_pixel(scr, x, y, color);
+        disp->draw_pixel(disp, x, y, color);
 }
 
-static inline void sgl_rotate_point_ccw(sgl_screen_t *scr, int32_t *x,
+static inline void sgl_rotate_point_ccw(sgl_display_t *disp, int32_t *x,
                                         int32_t *y) {
     int32_t temp = *x;
-    switch (scr->rotate) {
+    switch (disp->rotate) {
         case SGL_ROTATE_0:
             break;
         case SGL_ROTATE_90:
-            *x = scr->max_y - *y;
+            *x = disp->max_y - *y;
             *y = temp;
             break;
         case SGL_ROTATE_180:
-            *x = scr->max_x - *x;
-            *y = scr->max_y - *y;
+            *x = disp->max_x - *x;
+            *y = disp->max_y - *y;
             break;
         case SGL_ROTATE_270:
             *x = *y;
-            *y = scr->max_x - temp;
+            *y = disp->max_x - temp;
             break;
     }
 }
 
-static inline void sgl_rotate_point_cw(sgl_screen_t *scr, int32_t *x,
+static inline void sgl_rotate_point_cw(sgl_display_t *disp, int32_t *x,
                                        int32_t *y) {
     int32_t temp = *x;
-    switch (scr->rotate) {
+    switch (disp->rotate) {
         case SGL_ROTATE_0:
             break;
         case SGL_ROTATE_90:
             *x = *y;
-            *y = scr->max_y - temp;
+            *y = disp->max_y - temp;
             break;
         case SGL_ROTATE_180:
-            *x = scr->max_x - *x;
-            *y = scr->max_y - *y;
+            *x = disp->max_x - *x;
+            *y = disp->max_y - *y;
             break;
         case SGL_ROTATE_270:
-            *x = scr->max_x - *y;
+            *x = disp->max_x - *y;
             *y = temp;
             break;
     }
 }
 
-static inline void sgl_rotate_rect_ccw(sgl_screen_t *scr, int32_t *x,
+static inline void sgl_rotate_rect_ccw(sgl_display_t *disp, int32_t *x,
                                        int32_t *y, int32_t *w, int32_t *h) {
     int32_t temp1 = *x;
     int32_t temp2 = *w;
-    switch (scr->rotate) {
+    switch (disp->rotate) {
         case SGL_ROTATE_0:
             break;
         case SGL_ROTATE_90:
-            *x = scr->max_y - *y;
+            *x = disp->max_y - *y;
             *y = temp1;
             *w = -*h;
             *h = temp2;
             break;
         case SGL_ROTATE_180:
-            *x = scr->max_x - *x;
-            *y = scr->max_y - *y;
+            *x = disp->max_x - *x;
+            *y = disp->max_y - *y;
             *w = -*w;
             *h = -*h;
             break;
         case SGL_ROTATE_270:
             *x = *y;
-            *y = scr->max_x - temp1;
+            *y = disp->max_x - temp1;
             *w = *h;
             *h = -temp2;
             break;
     }
 }
 
-static inline void sgl_rotate_rect_cw(sgl_screen_t *scr, int32_t *x, int32_t *y,
-                                      int32_t *w, int32_t *h) {
+static inline void sgl_rotate_rect_cw(sgl_display_t *disp, int32_t *x,
+                                      int32_t *y, int32_t *w, int32_t *h) {
     int32_t temp1 = *x;
     int32_t temp2 = *w;
-    switch (scr->rotate) {
+    switch (disp->rotate) {
         case SGL_ROTATE_0:
             break;
         case SGL_ROTATE_90:
             *x = *y;
-            *y = scr->max_y - temp1;
+            *y = disp->max_y - temp1;
             *w = *h;
             *h = -temp2;
             break;
         case SGL_ROTATE_180:
-            *x = scr->max_x - *x;
-            *y = scr->max_y - *y;
+            *x = disp->max_x - *x;
+            *y = disp->max_y - *y;
             *w = -*w;
             *h = -*h;
             break;
         case SGL_ROTATE_270:
-            *x = scr->max_x - *y;
+            *x = disp->max_x - *y;
             *y = temp1;
             *w = -*h;
             *h = temp2;
@@ -283,12 +283,12 @@ static inline void sgl_rotate_rect_cw(sgl_screen_t *scr, int32_t *x, int32_t *y,
     }
 }
 
-static inline void sgl_rotate_area_ccw(sgl_screen_t *scr, int32_t *left,
+static inline void sgl_rotate_area_ccw(sgl_display_t *disp, int32_t *left,
                                        int32_t *top, int32_t *right,
                                        int32_t *bottom) {
     int32_t temp;
-    sgl_rotate_point_ccw(scr, left, top);
-    sgl_rotate_point_ccw(scr, right, bottom);
+    sgl_rotate_point_ccw(disp, left, top);
+    sgl_rotate_point_ccw(disp, right, bottom);
     if (*left > *right) {
         temp = *left;
         *left = *right;
@@ -301,12 +301,12 @@ static inline void sgl_rotate_area_ccw(sgl_screen_t *scr, int32_t *left,
     }
 }
 
-static inline void sgl_rotate_area_cw(sgl_screen_t *scr, int32_t *left,
+static inline void sgl_rotate_area_cw(sgl_display_t *disp, int32_t *left,
                                       int32_t *top, int32_t *right,
                                       int32_t *bottom) {
     int32_t temp;
-    sgl_rotate_point_cw(scr, left, top);
-    sgl_rotate_point_cw(scr, right, bottom);
+    sgl_rotate_point_cw(disp, left, top);
+    sgl_rotate_point_cw(disp, right, bottom);
     if (*left > *right) {
         temp = *left;
         *left = *right;
@@ -319,16 +319,17 @@ static inline void sgl_rotate_area_cw(sgl_screen_t *scr, int32_t *left,
     }
 }
 
-void sgl_draw_circle_section(sgl_screen_t *scr, int32_t xc, int32_t yc,
+void sgl_draw_circle_section(sgl_display_t *disp, int32_t xc, int32_t yc,
                              int32_t r, int32_t offset_x, int32_t offset_y,
                              uint32_t color);
-void sgl_draw_filled_circle_section(sgl_screen_t *scr, int32_t xc, int32_t yc,
+void sgl_draw_filled_circle_section(sgl_display_t *disp, int32_t xc, int32_t yc,
                                     int32_t r, int32_t offset_x,
                                     int32_t offset_y, uint32_t color);
-void sgl_draw_ellipse_section(sgl_screen_t *scr, int32_t xc, int32_t yc,
+void sgl_draw_ellipse_section(sgl_display_t *disp, int32_t xc, int32_t yc,
                               int32_t rx, int32_t ry, uint32_t color);
-void sgl_draw_filled_ellipse_section(sgl_screen_t *scr, int32_t xc, int32_t yc,
-                                     int32_t rx, int32_t ry, uint32_t color);
+void sgl_draw_filled_ellipse_section(sgl_display_t *disp, int32_t xc,
+                                     int32_t yc, int32_t rx, int32_t ry,
+                                     uint32_t color);
 
 #ifdef __cplusplus
 }

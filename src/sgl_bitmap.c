@@ -10,14 +10,14 @@ static inline uint32_t sgl_bitmap_24b_value(const uint8_t *pixel) {
            ((uint32_t)pixel[2] << 16);
 }
 
-static inline void sgl_rotate_bitmap(sgl_screen_t *scr, int32_t *x, int32_t *y,
-                                     int32_t *dx, int32_t *dy, int32_t w,
-                                     int32_t h, int32_t bmp_w, int32_t bmp_h,
-                                     sgl_dir_t *dir) {
+static inline void sgl_rotate_bitmap(sgl_display_t *disp, int32_t *x,
+                                     int32_t *y, int32_t *dx, int32_t *dy,
+                                     int32_t w, int32_t h, int32_t bmp_w,
+                                     int32_t bmp_h, sgl_dir_t *dir) {
     int32_t temp;
-    sgl_rotate_point_ccw(scr, x, y);
+    sgl_rotate_point_ccw(disp, x, y);
     temp = *dx;
-    switch (scr->rotate) {
+    switch (disp->rotate) {
         case SGL_ROTATE_0:
             break;
         case SGL_ROTATE_90:
@@ -56,10 +56,10 @@ static inline void sgl_rotate_bitmap(sgl_screen_t *scr, int32_t *x, int32_t *y,
             }
             break;
     }
-    *dir = (sgl_dir_t)((*dir + scr->rotate) & 3);
+    *dir = (sgl_dir_t)((*dir + disp->rotate) & 3);
 }
 
-static int sgl_bitmap_prepare(sgl_screen_t *scr, sgl_dir_t dir, int32_t *x,
+static int sgl_bitmap_prepare(sgl_display_t *disp, sgl_dir_t dir, int32_t *x,
                               int32_t *y, int32_t *w, int32_t *h, int32_t *row,
                               int32_t *col, int32_t *row_dir, int32_t *col_dir,
                               int32_t *walk_x) {
@@ -69,15 +69,15 @@ static int sgl_bitmap_prepare(sgl_screen_t *scr, sgl_dir_t dir, int32_t *x,
     logical_x = *x;
     logical_y = *y;
     if (dir == SGL_DIR_UP || dir == SGL_DIR_DOWN) {
-        if (sgl_clip_rect(&scr->drawable_area, x, y, w, h))
+        if (sgl_clip_rect(&disp->drawable_area, x, y, w, h))
             return -1;
     } else {
-        if (sgl_clip_rect(&scr->drawable_area, x, y, h, w))
+        if (sgl_clip_rect(&disp->drawable_area, x, y, h, w))
             return -1;
     }
     dx = *x - logical_x;
     dy = *y - logical_y;
-    sgl_rotate_bitmap(scr, x, y, &dx, &dy, *w, *h, bmp_w, bmp_h, &dir);
+    sgl_rotate_bitmap(disp, x, y, &dx, &dy, *w, *h, bmp_w, bmp_h, &dir);
     sgl_buffer_offset(*x, *y);
     switch (dir) {
         case SGL_DIR_UP:
@@ -112,13 +112,13 @@ static int sgl_bitmap_prepare(sgl_screen_t *scr, sgl_dir_t dir, int32_t *x,
     return 0;
 }
 
-void sgl_show_bitmap_1b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
+void sgl_show_bitmap_1b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
                         int32_t h, const uint8_t *bitmap, sgl_dir_t dir,
                         uint32_t color) {
     int32_t row, col, row_dir, col_dir, walk_x, index, i, j, bmp_w = w;
     uint32_t mask;
-    sgl_draw_pixel_t draw_pixel = scr->draw_pixel;
-    if (sgl_bitmap_prepare(scr, dir, &x, &y, &w, &h, &row, &col, &row_dir,
+    sgl_draw_pixel_t draw_pixel = disp->draw_pixel;
+    if (sgl_bitmap_prepare(disp, dir, &x, &y, &w, &h, &row, &col, &row_dir,
                            &col_dir, &walk_x))
         return;
     if (walk_x) {
@@ -127,7 +127,7 @@ void sgl_show_bitmap_1b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
             mask = 1U << (row & 7);
             for (j = 0; j < w; ++j, index += col_dir) {
                 if (bitmap[index] & mask)
-                    draw_pixel(scr, x + j, y, color);
+                    draw_pixel(disp, x + j, y, color);
             }
             row += row_dir;
             ++y;
@@ -138,7 +138,7 @@ void sgl_show_bitmap_1b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
             mask = 1U << (row & 7);
             for (j = 0; j < w; ++j, index += col_dir) {
                 if (bitmap[index] & mask)
-                    draw_pixel(scr, x, y + j, color);
+                    draw_pixel(disp, x, y + j, color);
             }
             row += row_dir;
             ++x;
@@ -146,13 +146,13 @@ void sgl_show_bitmap_1b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
     }
 }
 
-void sgl_show_bitmap_8b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
+void sgl_show_bitmap_8b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
                         int32_t h, const uint8_t *bitmap, sgl_dir_t dir) {
     const uint8_t *src;
     int32_t row, col, row_dir, col_dir, walk_x, src_step, src_row, i, j;
     int32_t bmp_w = w;
-    sgl_draw_pixel_t draw_pixel = scr->draw_pixel;
-    if (sgl_bitmap_prepare(scr, dir, &x, &y, &w, &h, &row, &col, &row_dir,
+    sgl_draw_pixel_t draw_pixel = disp->draw_pixel;
+    if (sgl_bitmap_prepare(disp, dir, &x, &y, &w, &h, &row, &col, &row_dir,
                            &col_dir, &walk_x))
         return;
     src = bitmap + row * bmp_w + col;
@@ -162,7 +162,7 @@ void sgl_show_bitmap_8b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                draw_pixel(scr, x + j, y, *p);
+                draw_pixel(disp, x + j, y, *p);
             }
             src += src_row;
             ++y;
@@ -171,7 +171,7 @@ void sgl_show_bitmap_8b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                draw_pixel(scr, x, y + j, *p);
+                draw_pixel(disp, x, y + j, *p);
             }
             src += src_row;
             ++x;
@@ -179,13 +179,13 @@ void sgl_show_bitmap_8b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
     }
 }
 
-void sgl_show_bitmap_16b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
+void sgl_show_bitmap_16b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
                          int32_t h, const uint16_t *bitmap, sgl_dir_t dir) {
     const uint8_t *src;
     int32_t row, col, row_dir, col_dir, walk_x, src_step, src_row, i, j;
     int32_t bmp_w = w;
-    sgl_draw_pixel_t draw_pixel = scr->draw_pixel;
-    if (sgl_bitmap_prepare(scr, dir, &x, &y, &w, &h, &row, &col, &row_dir,
+    sgl_draw_pixel_t draw_pixel = disp->draw_pixel;
+    if (sgl_bitmap_prepare(disp, dir, &x, &y, &w, &h, &row, &col, &row_dir,
                            &col_dir, &walk_x))
         return;
     src = (const uint8_t *)(bitmap + row * bmp_w + col);
@@ -195,7 +195,7 @@ void sgl_show_bitmap_16b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                draw_pixel(scr, x + j, y, *(const uint16_t *)p);
+                draw_pixel(disp, x + j, y, *(const uint16_t *)p);
             }
             src += src_row;
             ++y;
@@ -204,7 +204,7 @@ void sgl_show_bitmap_16b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                draw_pixel(scr, x, y + j, *(const uint16_t *)p);
+                draw_pixel(disp, x, y + j, *(const uint16_t *)p);
             }
             src += src_row;
             ++x;
@@ -212,13 +212,13 @@ void sgl_show_bitmap_16b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
     }
 }
 
-void sgl_show_bitmap_24b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
+void sgl_show_bitmap_24b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
                          int32_t h, const uint8_t *bitmap, sgl_dir_t dir) {
     const uint8_t *src;
     int32_t row, col, row_dir, col_dir, walk_x, src_step, src_row, i, j;
     int32_t bmp_w = w;
-    sgl_draw_pixel_t draw_pixel = scr->draw_pixel;
-    if (sgl_bitmap_prepare(scr, dir, &x, &y, &w, &h, &row, &col, &row_dir,
+    sgl_draw_pixel_t draw_pixel = disp->draw_pixel;
+    if (sgl_bitmap_prepare(disp, dir, &x, &y, &w, &h, &row, &col, &row_dir,
                            &col_dir, &walk_x))
         return;
     src = bitmap + (row * bmp_w + col) * 3;
@@ -228,7 +228,7 @@ void sgl_show_bitmap_24b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                draw_pixel(scr, x + j, y, sgl_bitmap_24b_value(p));
+                draw_pixel(disp, x + j, y, sgl_bitmap_24b_value(p));
             }
             src += src_row;
             ++y;
@@ -237,7 +237,7 @@ void sgl_show_bitmap_24b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                draw_pixel(scr, x, y + j, sgl_bitmap_24b_value(p));
+                draw_pixel(disp, x, y + j, sgl_bitmap_24b_value(p));
             }
             src += src_row;
             ++x;
@@ -245,13 +245,13 @@ void sgl_show_bitmap_24b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
     }
 }
 
-void sgl_show_bitmap_32b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
+void sgl_show_bitmap_32b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
                          int32_t h, const uint32_t *bitmap, sgl_dir_t dir) {
     const uint8_t *src;
     int32_t row, col, row_dir, col_dir, walk_x, src_step, src_row, i, j;
     int32_t bmp_w = w;
-    sgl_draw_pixel_t draw_pixel = scr->draw_pixel;
-    if (sgl_bitmap_prepare(scr, dir, &x, &y, &w, &h, &row, &col, &row_dir,
+    sgl_draw_pixel_t draw_pixel = disp->draw_pixel;
+    if (sgl_bitmap_prepare(disp, dir, &x, &y, &w, &h, &row, &col, &row_dir,
                            &col_dir, &walk_x))
         return;
     src = (const uint8_t *)(bitmap + row * bmp_w + col);
@@ -261,7 +261,7 @@ void sgl_show_bitmap_32b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                draw_pixel(scr, x + j, y, *(const uint32_t *)p);
+                draw_pixel(disp, x + j, y, *(const uint32_t *)p);
             }
             src += src_row;
             ++y;
@@ -270,7 +270,7 @@ void sgl_show_bitmap_32b(sgl_screen_t *scr, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                draw_pixel(scr, x, y + j, *(const uint32_t *)p);
+                draw_pixel(disp, x, y + j, *(const uint32_t *)p);
             }
             src += src_row;
             ++x;

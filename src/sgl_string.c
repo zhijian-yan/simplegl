@@ -8,7 +8,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-void sgl_show_string(sgl_screen_t *scr, int32_t x, int32_t y, const char *str,
+void sgl_show_string(sgl_display_t *disp, int32_t x, int32_t y, const char *str,
                      int32_t length, sgl_align_t align, sgl_dir_t dir,
                      uint32_t color) {
     int32_t i;
@@ -20,7 +20,7 @@ void sgl_show_string(sgl_screen_t *scr, int32_t x, int32_t y, const char *str,
             sgl_align(&x, &y, fontwidth * length, fontheight, align);
             for (i = 0; i < length; ++i)
                 sgl_show_bitmap_1b(
-                    scr, x + i * fontwidth, y, fontwidth, fontheight,
+                    disp, x + i * fontwidth, y, fontwidth, fontheight,
                     &sgl_builtin_fixedsys_8x16[(str[i] - ' ') * fontsize], dir,
                     color);
             break;
@@ -28,7 +28,7 @@ void sgl_show_string(sgl_screen_t *scr, int32_t x, int32_t y, const char *str,
             sgl_align(&x, &y, fontheight, fontwidth * length, align);
             for (i = 0; i < length; ++i)
                 sgl_show_bitmap_1b(
-                    scr, x, y + i * fontwidth, fontwidth, fontheight,
+                    disp, x, y + i * fontwidth, fontwidth, fontheight,
                     &sgl_builtin_fixedsys_8x16[(str[i] - ' ') * fontsize], dir,
                     color);
             break;
@@ -37,7 +37,7 @@ void sgl_show_string(sgl_screen_t *scr, int32_t x, int32_t y, const char *str,
             y += (length - 1) * fontwidth;
             for (i = 0; i < length; ++i)
                 sgl_show_bitmap_1b(
-                    scr, x, y - i * fontwidth, fontwidth, fontheight,
+                    disp, x, y - i * fontwidth, fontwidth, fontheight,
                     &sgl_builtin_fixedsys_8x16[(str[i] - ' ') * fontsize], dir,
                     color);
             break;
@@ -46,38 +46,39 @@ void sgl_show_string(sgl_screen_t *scr, int32_t x, int32_t y, const char *str,
             x += (length - 1) * fontwidth;
             for (i = 0; i < length; ++i)
                 sgl_show_bitmap_1b(
-                    scr, x - i * fontwidth, y, fontwidth, fontheight,
+                    disp, x - i * fontwidth, y, fontwidth, fontheight,
                     &sgl_builtin_fixedsys_8x16[(str[i] - ' ') * fontsize], dir,
                     color);
             break;
     }
 }
 
-int sgl_show_format(sgl_screen_t *scr, int32_t x, int32_t y, sgl_align_t align,
-                    sgl_dir_t dir, uint32_t color, const char *format, ...) {
+int sgl_show_format(sgl_display_t *disp, int32_t x, int32_t y,
+                    sgl_align_t align, sgl_dir_t dir, uint32_t color,
+                    const char *format, ...) {
     char buffer[SGL_FORMAT_STRING_BUFFERSIZE];
     va_list args;
     va_start(args, format);
     int length = vsnprintf(buffer, SGL_FORMAT_STRING_BUFFERSIZE, format, args);
     va_end(args);
-    sgl_show_string(scr, x, y, buffer, length, align, dir, color);
+    sgl_show_string(disp, x, y, buffer, length, align, dir, color);
     return length;
 }
 
-void sgl_show_string_default(sgl_screen_t *scr, int32_t x, int32_t y,
+void sgl_show_string_default(sgl_display_t *disp, int32_t x, int32_t y,
                              const char *str, int32_t length, uint32_t color) {
-    sgl_show_string(scr, x, y, str, length, SGL_ALIGN_DEFAULT, SGL_DIR_DEFAULT,
+    sgl_show_string(disp, x, y, str, length, SGL_ALIGN_DEFAULT, SGL_DIR_DEFAULT,
                     color);
 }
 
-int sgl_show_format_default(sgl_screen_t *scr, int32_t x, int32_t y,
+int sgl_show_format_default(sgl_display_t *disp, int32_t x, int32_t y,
                             uint32_t color, const char *format, ...) {
     char buffer[SGL_FORMAT_STRING_BUFFERSIZE];
     va_list args;
     va_start(args, format);
     int length = vsnprintf(buffer, SGL_FORMAT_STRING_BUFFERSIZE, format, args);
     va_end(args);
-    sgl_show_string(scr, x, y, buffer, length, SGL_ALIGN_DEFAULT,
+    sgl_show_string(disp, x, y, buffer, length, SGL_ALIGN_DEFAULT,
                     SGL_DIR_DEFAULT, color);
     return length;
 }

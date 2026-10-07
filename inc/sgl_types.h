@@ -99,11 +99,11 @@ typedef struct {
     int32_t h;
 } sgl_rect_t;
 
-typedef struct sgl_screen sgl_screen_t;
+typedef struct sgl_display sgl_display_t;
 
 typedef struct sgl_widget sgl_widget_t;
 
-typedef void (*sgl_draw_t)(sgl_screen_t *scr, sgl_widget_t *widget);
+typedef void (*sgl_draw_t)(sgl_display_t *disp, sgl_widget_t *widget);
 
 typedef struct {
     sgl_draw_t draw;
@@ -131,10 +131,10 @@ typedef struct {
     void (*frame_end)(void *user_data);
 } sgl_config_t;
 
-typedef void (*sgl_draw_pixel_t)(sgl_screen_t *scr, int32_t x, int32_t y,
+typedef void (*sgl_draw_pixel_t)(sgl_display_t *disp, int32_t x, int32_t y,
                                  uint32_t color);
 
-struct sgl_screen {
+struct sgl_display {
     void *buffer;
     uint32_t buffer_size;
     uint32_t buffer_width;
