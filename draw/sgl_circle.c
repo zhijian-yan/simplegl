@@ -97,8 +97,9 @@ void sgl_draw_filled_circle_section(sgl_display_t *disp, int32_t xc, int32_t yc,
     }
 }
 
-void __sgl_draw_circle(sgl_display_t *disp, int32_t xc, int32_t yc, int32_t r,
-                       int32_t offset, int32_t is_filled, uint32_t color) {
+static void sgl_draw_circle_with_offset(sgl_display_t *disp, int32_t xc,
+                                        int32_t yc, int32_t r, int32_t offset,
+                                        int32_t is_filled, uint32_t color) {
     if (is_filled == 0 && r > 0) {
         if (offset == 0) {
             sgl_draw_point(disp, xc + r, yc, color); // 8, 1
@@ -119,8 +120,18 @@ void __sgl_draw_circle(sgl_display_t *disp, int32_t xc, int32_t yc, int32_t r,
     }
 }
 
-void sgl_draw_circle(sgl_display_t *disp, int32_t x, int32_t y, int32_t d,
+void sgl_draw_circle(sgl_display_t *disp, int32_t xc, int32_t yc, int32_t r,
                      int32_t is_filled, uint32_t color) {
+    if (r < 0)
+        r = -r;
+    if (sgl_check_area(&disp->drawable_area, xc - r, yc - r, xc + r, yc + r))
+        return;
+    sgl_draw_circle_with_offset(disp, xc, yc, r, 0, is_filled, color);
+}
+
+void sgl_draw_circle_with_diameter(sgl_display_t *disp, int32_t x, int32_t y,
+                                   int32_t d, int32_t is_filled,
+                                   uint32_t color) {
     int32_t r;
     if (d < 0)
         d = -d;
@@ -133,18 +144,10 @@ void sgl_draw_circle(sgl_display_t *disp, int32_t x, int32_t y, int32_t d,
     }
     r = d >> 1;
     if (d & 0x1)
-        __sgl_draw_circle(disp, x + r, y + r, r, 0, is_filled, color);
+        sgl_draw_circle_with_offset(disp, x + r, y + r, r, 0, is_filled, color);
     else
-        __sgl_draw_circle(disp, x + r, y + r, r, -1, is_filled, color);
-}
-
-void sgl_draw_circle_center(sgl_display_t *disp, int32_t xc, int32_t yc,
-                            int32_t r, int32_t is_filled, uint32_t color) {
-    if (r < 0)
-        r = -r;
-    if (sgl_check_area(&disp->drawable_area, xc - r, yc - r, xc + r, yc + r))
-        return;
-    __sgl_draw_circle(disp, xc, yc, r, 0, is_filled, color);
+        sgl_draw_circle_with_offset(disp, x + r, y + r, r, -1, is_filled,
+                                    color);
 }
 
 void sgl_draw_ellipse_section(sgl_display_t *disp, int32_t xc, int32_t yc,

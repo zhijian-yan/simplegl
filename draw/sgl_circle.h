@@ -11,10 +11,11 @@
 extern "C" {
 #endif
 
-void sgl_draw_circle(sgl_display_t *disp, int32_t x, int32_t y, int32_t d,
+void sgl_draw_circle(sgl_display_t *disp, int32_t xc, int32_t yc, int32_t r,
                      int32_t is_filled, uint32_t color);
-void sgl_draw_circle_center(sgl_display_t *disp, int32_t xc, int32_t yc,
-                            int32_t r, int32_t is_filled, uint32_t color);
+void sgl_draw_circle_with_diameter(sgl_display_t *disp, int32_t x, int32_t y,
+                                   int32_t d, int32_t is_filled,
+                                   uint32_t color);
 void sgl_draw_ellipse(sgl_display_t *disp, int32_t xc, int32_t yc, int32_t rx,
                       int32_t ry, int32_t is_filled, uint32_t color);
 
