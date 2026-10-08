@@ -1,14 +1,35 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2026 Zhijian Yan
+// Copyright (c) 2025-2026 Zhijian Yan
 
 #ifndef SGL_WIDGET_H
 #define SGL_WIDGET_H
+
+#include "sgl_list.h"
+#include "sgl_types.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "sgl_types.h"
+typedef struct sgl_display sgl_display_t;
+
+typedef struct sgl_widget sgl_widget_t;
+
+typedef void (*sgl_draw_t)(sgl_display_t *disp, sgl_widget_t *widget);
+
+typedef struct {
+    sgl_draw_t draw;
+} sgl_widget_vtable_t;
+
+struct sgl_widget {
+    sgl_widget_t *parent;
+    struct sgl_list_head sibling;
+    struct sgl_list_head children;
+    sgl_rect_t rect;
+    sgl_widget_vtable_t *vtable;
+    void *user_data;
+    uint16_t flags;
+};
 
 void sgl_widget_init(sgl_widget_t *widget, int32_t x, int32_t y, int32_t w,
                      int32_t h, sgl_widget_vtable_t *vtable, void *user_data);

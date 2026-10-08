@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025-2026 Zhijian Yan
 
-#include "../inc/sgl_bitmap.h"
-#include "../inc/sgl_common.h"
-#include "../inc/sgl_line.h"
+#include "sgl_bitmap.h"
+#include "sgl_common.h"
+#include "sgl_line.h"
 
 static inline uint32_t sgl_bitmap_24b_value(const uint8_t *pixel) {
     return (uint32_t)pixel[0] | ((uint32_t)pixel[1] << 8) |
@@ -112,12 +112,12 @@ static int sgl_bitmap_prepare(sgl_display_t *disp, sgl_dir_t dir, int32_t *x,
     return 0;
 }
 
-void sgl_show_bitmap_1b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
+void sgl_draw_bitmap_1b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
                         int32_t h, const uint8_t *bitmap, sgl_dir_t dir,
                         uint32_t color) {
     int32_t row, col, row_dir, col_dir, walk_x, index, i, j, bmp_w = w;
     uint32_t mask;
-    sgl_draw_pixel_t draw_pixel = disp->draw_pixel;
+    sgl_write_pixel_t write_pixel = disp->write_pixel;
     if (sgl_bitmap_prepare(disp, dir, &x, &y, &w, &h, &row, &col, &row_dir,
                            &col_dir, &walk_x))
         return;
@@ -127,7 +127,7 @@ void sgl_show_bitmap_1b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
             mask = 1U << (row & 7);
             for (j = 0; j < w; ++j, index += col_dir) {
                 if (bitmap[index] & mask)
-                    draw_pixel(disp, x + j, y, color);
+                    write_pixel(&disp->fb, x + j, y, color);
             }
             row += row_dir;
             ++y;
@@ -138,7 +138,7 @@ void sgl_show_bitmap_1b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
             mask = 1U << (row & 7);
             for (j = 0; j < w; ++j, index += col_dir) {
                 if (bitmap[index] & mask)
-                    draw_pixel(disp, x, y + j, color);
+                    write_pixel(&disp->fb, x, y + j, color);
             }
             row += row_dir;
             ++x;
@@ -146,12 +146,12 @@ void sgl_show_bitmap_1b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
     }
 }
 
-void sgl_show_bitmap_8b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
+void sgl_draw_bitmap_8b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
                         int32_t h, const uint8_t *bitmap, sgl_dir_t dir) {
     const uint8_t *src;
     int32_t row, col, row_dir, col_dir, walk_x, src_step, src_row, i, j;
     int32_t bmp_w = w;
-    sgl_draw_pixel_t draw_pixel = disp->draw_pixel;
+    sgl_write_pixel_t write_pixel = disp->write_pixel;
     if (sgl_bitmap_prepare(disp, dir, &x, &y, &w, &h, &row, &col, &row_dir,
                            &col_dir, &walk_x))
         return;
@@ -162,7 +162,7 @@ void sgl_show_bitmap_8b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                draw_pixel(disp, x + j, y, *p);
+                write_pixel(&disp->fb, x + j, y, *p);
             }
             src += src_row;
             ++y;
@@ -171,7 +171,7 @@ void sgl_show_bitmap_8b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                draw_pixel(disp, x, y + j, *p);
+                write_pixel(&disp->fb, x, y + j, *p);
             }
             src += src_row;
             ++x;
@@ -179,12 +179,12 @@ void sgl_show_bitmap_8b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
     }
 }
 
-void sgl_show_bitmap_16b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
+void sgl_draw_bitmap_16b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
                          int32_t h, const uint16_t *bitmap, sgl_dir_t dir) {
     const uint8_t *src;
     int32_t row, col, row_dir, col_dir, walk_x, src_step, src_row, i, j;
     int32_t bmp_w = w;
-    sgl_draw_pixel_t draw_pixel = disp->draw_pixel;
+    sgl_write_pixel_t write_pixel = disp->write_pixel;
     if (sgl_bitmap_prepare(disp, dir, &x, &y, &w, &h, &row, &col, &row_dir,
                            &col_dir, &walk_x))
         return;
@@ -195,7 +195,7 @@ void sgl_show_bitmap_16b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                draw_pixel(disp, x + j, y, *(const uint16_t *)p);
+                write_pixel(&disp->fb, x + j, y, *(const uint16_t *)p);
             }
             src += src_row;
             ++y;
@@ -204,7 +204,7 @@ void sgl_show_bitmap_16b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                draw_pixel(disp, x, y + j, *(const uint16_t *)p);
+                write_pixel(&disp->fb, x, y + j, *(const uint16_t *)p);
             }
             src += src_row;
             ++x;
@@ -212,12 +212,12 @@ void sgl_show_bitmap_16b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
     }
 }
 
-void sgl_show_bitmap_24b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
+void sgl_draw_bitmap_24b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
                          int32_t h, const uint8_t *bitmap, sgl_dir_t dir) {
     const uint8_t *src;
     int32_t row, col, row_dir, col_dir, walk_x, src_step, src_row, i, j;
     int32_t bmp_w = w;
-    sgl_draw_pixel_t draw_pixel = disp->draw_pixel;
+    sgl_write_pixel_t write_pixel = disp->write_pixel;
     if (sgl_bitmap_prepare(disp, dir, &x, &y, &w, &h, &row, &col, &row_dir,
                            &col_dir, &walk_x))
         return;
@@ -228,7 +228,7 @@ void sgl_show_bitmap_24b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                draw_pixel(disp, x + j, y, sgl_bitmap_24b_value(p));
+                write_pixel(&disp->fb, x + j, y, sgl_bitmap_24b_value(p));
             }
             src += src_row;
             ++y;
@@ -237,7 +237,7 @@ void sgl_show_bitmap_24b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                draw_pixel(disp, x, y + j, sgl_bitmap_24b_value(p));
+                write_pixel(&disp->fb, x, y + j, sgl_bitmap_24b_value(p));
             }
             src += src_row;
             ++x;
@@ -245,12 +245,12 @@ void sgl_show_bitmap_24b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
     }
 }
 
-void sgl_show_bitmap_32b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
+void sgl_draw_bitmap_32b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
                          int32_t h, const uint32_t *bitmap, sgl_dir_t dir) {
     const uint8_t *src;
     int32_t row, col, row_dir, col_dir, walk_x, src_step, src_row, i, j;
     int32_t bmp_w = w;
-    sgl_draw_pixel_t draw_pixel = disp->draw_pixel;
+    sgl_write_pixel_t write_pixel = disp->write_pixel;
     if (sgl_bitmap_prepare(disp, dir, &x, &y, &w, &h, &row, &col, &row_dir,
                            &col_dir, &walk_x))
         return;
@@ -261,7 +261,7 @@ void sgl_show_bitmap_32b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                draw_pixel(disp, x + j, y, *(const uint32_t *)p);
+                write_pixel(&disp->fb, x + j, y, *(const uint32_t *)p);
             }
             src += src_row;
             ++y;
@@ -270,7 +270,7 @@ void sgl_show_bitmap_32b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                draw_pixel(disp, x, y + j, *(const uint32_t *)p);
+                write_pixel(&disp->fb, x, y + j, *(const uint32_t *)p);
             }
             src += src_row;
             ++x;

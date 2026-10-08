@@ -1,5 +1,7 @@
 *
-!README.md
-!inc/
-!src/
+!core/
+!display/
+!draw/
+!string/
+!README*
 !sgl*

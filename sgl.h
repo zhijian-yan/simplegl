@@ -1,25 +1,17 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025-2026 Zhijian Yan
 
-#ifndef SGL_H
-#define SGL_H
+#ifndef SIMPLEGL_H
+#define SIMPLEGL_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include "inc/sgl_bitmap.h"
-#include "inc/sgl_circle.h"
-#include "inc/sgl_color.h"
-#include "inc/sgl_core.h"
-#include "inc/sgl_line.h"
-#include "inc/sgl_polygon.h"
-#include "inc/sgl_rect.h"
-#include "inc/sgl_string.h"
-#include "inc/sgl_widget.h"
-
-#ifdef __cplusplus
-}
-#endif
+#include "core/sgl_core.h"
+#include "core/sgl_widget.h"
+#include "display/sgl_color.h"
+#include "draw/sgl_bitmap.h"
+#include "draw/sgl_circle.h"
+#include "draw/sgl_line.h"
+#include "draw/sgl_polygon.h"
+#include "draw/sgl_rect.h"
+#include "string/sgl_string.h"
 
 #endif

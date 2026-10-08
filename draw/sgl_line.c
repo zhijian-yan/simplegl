@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025-2026 Zhijian Yan
 
-#include "../inc/sgl_line.h"
-#include "../inc/sgl_common.h"
+#include "sgl_line.h"
+#include "sgl_common.h"
 
 void sgl_draw_point(sgl_display_t *disp, int32_t x, int32_t y, uint32_t color) {
     sgl_logical_offset(x, y);
@@ -10,7 +10,7 @@ void sgl_draw_point(sgl_display_t *disp, int32_t x, int32_t y, uint32_t color) {
         return;
     sgl_rotate_point_ccw(disp, &x, &y);
     sgl_buffer_offset(x, y);
-    disp->draw_pixel(disp, x, y, color);
+    disp->write_pixel(&disp->fb, x, y, color);
 }
 
 void sgl_draw_hline(sgl_display_t *disp, int32_t x, int32_t y, int32_t len,
@@ -25,16 +25,16 @@ void sgl_draw_hline(sgl_display_t *disp, int32_t x, int32_t y, int32_t len,
     sgl_buffer_offset(x, y);
     switch (disp->rotate) {
         case SGL_ROTATE_0:
-            sgl_draw_hpixel(disp, x, y, len, color);
+            sgl_write_hpixel(disp, x, y, len, color);
             break;
         case SGL_ROTATE_90:
-            sgl_draw_vpixel(disp, x, y, len, color);
+            sgl_write_vpixel(disp, x, y, len, color);
             break;
         case SGL_ROTATE_180:
-            sgl_draw_hpixel(disp, x, y, -len, color);
+            sgl_write_hpixel(disp, x, y, -len, color);
             break;
         case SGL_ROTATE_270:
-            sgl_draw_vpixel(disp, x, y, -len, color);
+            sgl_write_vpixel(disp, x, y, -len, color);
             break;
     }
 }
@@ -51,16 +51,16 @@ void sgl_draw_vline(sgl_display_t *disp, int32_t x, int32_t y, int32_t len,
     sgl_buffer_offset(x, y);
     switch (disp->rotate) {
         case SGL_ROTATE_0:
-            sgl_draw_vpixel(disp, x, y, len, color);
+            sgl_write_vpixel(disp, x, y, len, color);
             break;
         case SGL_ROTATE_90:
-            sgl_draw_hpixel(disp, x, y, -len, color);
+            sgl_write_hpixel(disp, x, y, -len, color);
             break;
         case SGL_ROTATE_180:
-            sgl_draw_vpixel(disp, x, y, -len, color);
+            sgl_write_vpixel(disp, x, y, -len, color);
             break;
         case SGL_ROTATE_270:
-            sgl_draw_hpixel(disp, x, y, len, color);
+            sgl_write_hpixel(disp, x, y, len, color);
             break;
     }
 }

@@ -4,11 +4,11 @@
 #ifndef SGL_COLOR_H
 #define SGL_COLOR_H
 
+#include "core/sgl_types.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "sgl_types.h"
 
 #define sgl_color_get_a(color) ((uint8_t)((color) >> 24))
 #define sgl_color_get_r(color) ((uint8_t)((color) >> 16))

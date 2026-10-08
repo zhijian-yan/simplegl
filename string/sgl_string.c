@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025-2026 Zhijian Yan
 
-#include "../inc/sgl_string.h"
-#include "../inc/sgl_bitmap.h"
-#include "../inc/sgl_builtin_font.h"
-#include "../inc/sgl_common.h"
+#include "sgl_string.h"
+#include "draw/sgl_bitmap.h"
+#include "sgl_builtin_font.h"
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -19,7 +18,7 @@ void sgl_show_string(sgl_display_t *disp, int32_t x, int32_t y, const char *str,
         case SGL_DIR_UP:
             sgl_align(&x, &y, fontwidth * length, fontheight, align);
             for (i = 0; i < length; ++i)
-                sgl_show_bitmap_1b(
+                sgl_draw_bitmap_1b(
                     disp, x + i * fontwidth, y, fontwidth, fontheight,
                     &sgl_builtin_fixedsys_8x16[(str[i] - ' ') * fontsize], dir,
                     color);
@@ -27,7 +26,7 @@ void sgl_show_string(sgl_display_t *disp, int32_t x, int32_t y, const char *str,
         case SGL_DIR_RIGHT:
             sgl_align(&x, &y, fontheight, fontwidth * length, align);
             for (i = 0; i < length; ++i)
-                sgl_show_bitmap_1b(
+                sgl_draw_bitmap_1b(
                     disp, x, y + i * fontwidth, fontwidth, fontheight,
                     &sgl_builtin_fixedsys_8x16[(str[i] - ' ') * fontsize], dir,
                     color);
@@ -36,7 +35,7 @@ void sgl_show_string(sgl_display_t *disp, int32_t x, int32_t y, const char *str,
             sgl_align(&x, &y, fontheight, fontwidth * length, align);
             y += (length - 1) * fontwidth;
             for (i = 0; i < length; ++i)
-                sgl_show_bitmap_1b(
+                sgl_draw_bitmap_1b(
                     disp, x, y - i * fontwidth, fontwidth, fontheight,
                     &sgl_builtin_fixedsys_8x16[(str[i] - ' ') * fontsize], dir,
                     color);
@@ -45,7 +44,7 @@ void sgl_show_string(sgl_display_t *disp, int32_t x, int32_t y, const char *str,
             sgl_align(&x, &y, fontwidth * length, fontheight, align);
             x += (length - 1) * fontwidth;
             for (i = 0; i < length; ++i)
-                sgl_show_bitmap_1b(
+                sgl_draw_bitmap_1b(
                     disp, x - i * fontwidth, y, fontwidth, fontheight,
                     &sgl_builtin_fixedsys_8x16[(str[i] - ' ') * fontsize], dir,
                     color);

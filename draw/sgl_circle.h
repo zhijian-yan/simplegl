@@ -4,11 +4,12 @@
 #ifndef SGL_CIRCLE_H
 #define SGL_CIRCLE_H
 
+#include "core/sgl_types.h"
+#include "display/sgl_display.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "sgl_types.h"
 
 void sgl_draw_circle(sgl_display_t *disp, int32_t x, int32_t y, int32_t d,
                      int32_t is_filled, uint32_t color);

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025-2026 Zhijian Yan
 
-#include "../inc/sgl_rect.h"
-#include "../inc/sgl_common.h"
-#include "../inc/sgl_line.h"
+#include "sgl_rect.h"
+#include "sgl_common.h"
+#include "sgl_line.h"
 
 void sgl_draw_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
                    int32_t h, int is_filled, uint32_t color) {
@@ -16,11 +16,11 @@ void sgl_draw_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
         sgl_buffer_offset(x, y);
         if (w > h) {
             for (h += y; y < h; ++y) {
-                sgl_draw_hpixel(disp, x, y, w, color);
+                sgl_write_hpixel(disp, x, y, w, color);
             }
         } else {
             for (w += x; x < w; ++x) {
-                sgl_draw_vpixel(disp, x, y, h, color);
+                sgl_write_vpixel(disp, x, y, h, color);
             }
         }
     } else {

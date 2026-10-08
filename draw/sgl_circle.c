@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025-2026 Zhijian Yan
 
-#include "../inc/sgl_circle.h"
-#include "../inc/sgl_common.h"
-#include "../inc/sgl_line.h"
+#include "sgl_circle.h"
+#include "sgl_common.h"
+#include "sgl_line.h"
 
 /**
  * +-----------> X

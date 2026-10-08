@@ -4,11 +4,12 @@
 #ifndef SGL_RECT_H
 #define SGL_RECT_H
 
+#include "core/sgl_types.h"
+#include "display/sgl_display.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "sgl_types.h"
 
 void sgl_draw_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
                    int32_t h, int is_filled, uint32_t color);

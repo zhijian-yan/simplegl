@@ -4,11 +4,12 @@
 #ifndef SGL_LINE_H
 #define SGL_LINE_H
 
+#include "core/sgl_types.h"
+#include "display/sgl_display.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "sgl_types.h"
 
 void sgl_draw_point(sgl_display_t *disp, int32_t x, int32_t y, uint32_t color);
 void sgl_draw_hline(sgl_display_t *disp, int32_t x, int32_t y, int32_t len,
