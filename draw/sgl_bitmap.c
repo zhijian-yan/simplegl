@@ -117,6 +117,7 @@ void sgl_draw_bitmap_1b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
     int32_t row, col, row_dir, col_dir, walk_x, index, i, j, bmp_w = w;
     uint32_t mask;
     sgl_write_pixel_t write_pixel = disp->write_pixel;
+    sgl_framebuffer_t *fb = &disp->fb;
     if (sgl_bitmap_prepare(disp, dir, &x, &y, &w, &h, &row, &col, &row_dir,
                            &col_dir, &walk_x))
         return;
@@ -126,7 +127,7 @@ void sgl_draw_bitmap_1b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
             mask = 1U << (row & 7);
             for (j = 0; j < w; ++j, index += col_dir) {
                 if (bitmap[index] & mask)
-                    write_pixel(&disp->fb, x + j, y, color);
+                    write_pixel(fb, x + j, y, color);
             }
             row += row_dir;
             ++y;
@@ -137,7 +138,7 @@ void sgl_draw_bitmap_1b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
             mask = 1U << (row & 7);
             for (j = 0; j < w; ++j, index += col_dir) {
                 if (bitmap[index] & mask)
-                    write_pixel(&disp->fb, x, y + j, color);
+                    write_pixel(fb, x, y + j, color);
             }
             row += row_dir;
             ++x;
@@ -151,6 +152,7 @@ void sgl_draw_bitmap_8b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
     int32_t row, col, row_dir, col_dir, walk_x, src_step, src_row, i, j;
     int32_t bmp_w = w;
     sgl_write_pixel_t write_pixel = disp->write_pixel;
+    sgl_framebuffer_t *fb = &disp->fb;
     if (sgl_bitmap_prepare(disp, dir, &x, &y, &w, &h, &row, &col, &row_dir,
                            &col_dir, &walk_x))
         return;
@@ -161,7 +163,7 @@ void sgl_draw_bitmap_8b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                write_pixel(&disp->fb, x + j, y, *p);
+                write_pixel(fb, x + j, y, *p);
             }
             src += src_row;
             ++y;
@@ -170,7 +172,7 @@ void sgl_draw_bitmap_8b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                write_pixel(&disp->fb, x, y + j, *p);
+                write_pixel(fb, x, y + j, *p);
             }
             src += src_row;
             ++x;
@@ -184,17 +186,18 @@ void sgl_draw_bitmap_16b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
     int32_t row, col, row_dir, col_dir, walk_x, src_step, src_row, i, j;
     int32_t bmp_w = w;
     sgl_write_pixel_t write_pixel = disp->write_pixel;
+    sgl_framebuffer_t *fb = &disp->fb;
     if (sgl_bitmap_prepare(disp, dir, &x, &y, &w, &h, &row, &col, &row_dir,
                            &col_dir, &walk_x))
         return;
     src = (const uint8_t *)(bitmap + row * bmp_w + col);
-    src_step = col_dir * (int32_t)sizeof(*bitmap);
-    src_row = row_dir * bmp_w * (int32_t)sizeof(*bitmap);
+    src_step = col_dir * 2;
+    src_row = row_dir * bmp_w * 2;
     if (walk_x) {
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                write_pixel(&disp->fb, x + j, y, *(const uint16_t *)p);
+                write_pixel(fb, x + j, y, *(const uint16_t *)p);
             }
             src += src_row;
             ++y;
@@ -203,7 +206,7 @@ void sgl_draw_bitmap_16b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                write_pixel(&disp->fb, x, y + j, *(const uint16_t *)p);
+                write_pixel(fb, x, y + j, *(const uint16_t *)p);
             }
             src += src_row;
             ++x;
@@ -217,6 +220,7 @@ void sgl_draw_bitmap_24b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
     int32_t row, col, row_dir, col_dir, walk_x, src_step, src_row, i, j;
     int32_t bmp_w = w;
     sgl_write_pixel_t write_pixel = disp->write_pixel;
+    sgl_framebuffer_t *fb = &disp->fb;
     if (sgl_bitmap_prepare(disp, dir, &x, &y, &w, &h, &row, &col, &row_dir,
                            &col_dir, &walk_x))
         return;
@@ -227,7 +231,7 @@ void sgl_draw_bitmap_24b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                write_pixel(&disp->fb, x + j, y, sgl_bitmap_24b_value(p));
+                write_pixel(fb, x + j, y, sgl_bitmap_24b_value(p));
             }
             src += src_row;
             ++y;
@@ -236,7 +240,7 @@ void sgl_draw_bitmap_24b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                write_pixel(&disp->fb, x, y + j, sgl_bitmap_24b_value(p));
+                write_pixel(fb, x, y + j, sgl_bitmap_24b_value(p));
             }
             src += src_row;
             ++x;
@@ -250,17 +254,18 @@ void sgl_draw_bitmap_32b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
     int32_t row, col, row_dir, col_dir, walk_x, src_step, src_row, i, j;
     int32_t bmp_w = w;
     sgl_write_pixel_t write_pixel = disp->write_pixel;
+    sgl_framebuffer_t *fb = &disp->fb;
     if (sgl_bitmap_prepare(disp, dir, &x, &y, &w, &h, &row, &col, &row_dir,
                            &col_dir, &walk_x))
         return;
     src = (const uint8_t *)(bitmap + row * bmp_w + col);
-    src_step = col_dir * (int32_t)sizeof(*bitmap);
-    src_row = row_dir * bmp_w * (int32_t)sizeof(*bitmap);
+    src_step = col_dir * 4;
+    src_row = row_dir * bmp_w * 4;
     if (walk_x) {
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                write_pixel(&disp->fb, x + j, y, *(const uint32_t *)p);
+                write_pixel(fb, x + j, y, *(const uint32_t *)p);
             }
             src += src_row;
             ++y;
@@ -269,7 +274,7 @@ void sgl_draw_bitmap_32b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                write_pixel(&disp->fb, x, y + j, *(const uint32_t *)p);
+                write_pixel(fb, x, y + j, *(const uint32_t *)p);
             }
             src += src_row;
             ++x;
