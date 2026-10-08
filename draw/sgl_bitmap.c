@@ -10,10 +10,9 @@ static inline uint32_t sgl_bitmap_24b_value(const uint8_t *pixel) {
            ((uint32_t)pixel[2] << 16);
 }
 
-static inline void sgl_rotate_bitmap(sgl_display_t *disp, int32_t *x,
-                                     int32_t *y, int32_t *dx, int32_t *dy,
-                                     int32_t w, int32_t h, int32_t bmp_w,
-                                     int32_t bmp_h, sgl_dir_t *dir) {
+static void sgl_rotate_bitmap(const sgl_display_t *disp, int32_t *x, int32_t *y,
+                              int32_t *dx, int32_t *dy, int32_t w, int32_t h,
+                              int32_t bmp_w, int32_t bmp_h, sgl_dir_t *dir) {
     int32_t temp;
     sgl_rotate_point_ccw(disp, x, y);
     temp = *dx;
@@ -59,10 +58,10 @@ static inline void sgl_rotate_bitmap(sgl_display_t *disp, int32_t *x,
     *dir = (sgl_dir_t)((*dir + disp->rotate) & 3);
 }
 
-static int sgl_bitmap_prepare(sgl_display_t *disp, sgl_dir_t dir, int32_t *x,
-                              int32_t *y, int32_t *w, int32_t *h, int32_t *row,
-                              int32_t *col, int32_t *row_dir, int32_t *col_dir,
-                              int32_t *walk_x) {
+static int sgl_bitmap_prepare(const sgl_display_t *disp, sgl_dir_t dir,
+                              int32_t *x, int32_t *y, int32_t *w, int32_t *h,
+                              int32_t *row, int32_t *col, int32_t *row_dir,
+                              int32_t *col_dir, int32_t *walk_x) {
     int32_t bmp_w = *w, bmp_h = *h;
     int32_t logical_x, logical_y, dx, dy;
     sgl_logical_offset(*x, *y);

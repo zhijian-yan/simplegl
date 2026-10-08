@@ -103,9 +103,9 @@ static void sgl_buffer_slice(sgl_display_t *disp) {
     }
 }
 
-static void sgl_draw(sgl_display_t *disp, sgl_widget_t *widget,
-                     int32_t offset_x, int32_t offset_y,
-                     const sgl_area_t *parent_bounds) {
+static void sgl_draw_proc(sgl_display_t *disp, sgl_widget_t *widget,
+                          int32_t offset_x, int32_t offset_y,
+                          const sgl_area_t *parent_bounds) {
     sgl_widget_t *child;
     sgl_area_t bounds;
     disp->logical_offset_x = offset_x;
@@ -119,15 +119,15 @@ static void sgl_draw(sgl_display_t *disp, sgl_widget_t *widget,
             widget->vtable->draw(disp, widget);
     }
     sgl_list_for_each_entry(child, &widget->children, sibling) {
-        sgl_draw(disp, child, offset_x + child->rect.x,
-                 offset_y + child->rect.y, &bounds);
+        sgl_draw_proc(disp, child, offset_x + child->rect.x,
+                      offset_y + child->rect.y, &bounds);
     }
 }
 
 void sgl_handler(sgl_display_t *disp) {
     sgl_buffer_slice(disp);
-    sgl_draw(disp, &disp->root, disp->root.rect.x, disp->root.rect.y,
-             &disp->slice_area);
+    sgl_draw_proc(disp, &disp->root, disp->root.rect.x, disp->root.rect.y,
+                  &disp->slice_area);
     disp->flush(disp->fb.buffer, &disp->slice_rect);
     if (disp->slice_state == SGL_SLICE_STATE_IDLE) {
         ++disp->frame_count;

@@ -65,13 +65,13 @@ typedef struct sgl_display {
     void (*frame_end)(void *user_data);
 } sgl_display_t;
 
-int sgl_display_init(sgl_display_t *disp, sgl_display_config_t *config);
+int sgl_display_init(sgl_display_t *disp, const sgl_display_config_t *config);
 int sgl_set_write_pixel(sgl_display_t *disp, uint32_t hor_res,
                         uint32_t buffer_size, uint32_t pixel_size,
                         sgl_write_pixel_t write_pixel);
 void sgl_set_flush(sgl_display_t *disp,
                    void (*flush)(void *buffer, sgl_rect_t *refresh));
-uint32_t sgl_get_frame_count(sgl_display_t *disp);
+uint32_t sgl_get_frame_count(const sgl_display_t *disp);
 void sgl_reset_frame_count(sgl_display_t *disp);
 void sgl_clear_buffer(sgl_display_t *disp, uint8_t value);
 

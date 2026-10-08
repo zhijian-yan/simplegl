@@ -96,7 +96,7 @@ static inline int sgl_clip_rect(const sgl_area_t *bounds, int32_t *x,
     return 0;
 }
 
-static inline void sgl_rotate_point_ccw(sgl_display_t *disp, int32_t *x,
+static inline void sgl_rotate_point_ccw(const sgl_display_t *disp, int32_t *x,
                                         int32_t *y) {
     int32_t temp = *x;
     switch (disp->rotate) {
@@ -117,7 +117,7 @@ static inline void sgl_rotate_point_ccw(sgl_display_t *disp, int32_t *x,
     }
 }
 
-static inline void sgl_rotate_point_cw(sgl_display_t *disp, int32_t *x,
+static inline void sgl_rotate_point_cw(const sgl_display_t *disp, int32_t *x,
                                        int32_t *y) {
     int32_t temp = *x;
     switch (disp->rotate) {
@@ -138,7 +138,7 @@ static inline void sgl_rotate_point_cw(sgl_display_t *disp, int32_t *x,
     }
 }
 
-static inline void sgl_rotate_rect_ccw(sgl_display_t *disp, int32_t *x,
+static inline void sgl_rotate_rect_ccw(const sgl_display_t *disp, int32_t *x,
                                        int32_t *y, int32_t *w, int32_t *h) {
     int32_t temp1 = *x;
     int32_t temp2 = *w;
@@ -166,7 +166,7 @@ static inline void sgl_rotate_rect_ccw(sgl_display_t *disp, int32_t *x,
     }
 }
 
-static inline void sgl_rotate_rect_cw(sgl_display_t *disp, int32_t *x,
+static inline void sgl_rotate_rect_cw(const sgl_display_t *disp, int32_t *x,
                                       int32_t *y, int32_t *w, int32_t *h) {
     int32_t temp1 = *x;
     int32_t temp2 = *w;
@@ -194,7 +194,7 @@ static inline void sgl_rotate_rect_cw(sgl_display_t *disp, int32_t *x,
     }
 }
 
-static inline void sgl_rotate_area_ccw(sgl_display_t *disp, int32_t *left,
+static inline void sgl_rotate_area_ccw(const sgl_display_t *disp, int32_t *left,
                                        int32_t *top, int32_t *right,
                                        int32_t *bottom) {
     int32_t temp;
@@ -212,7 +212,7 @@ static inline void sgl_rotate_area_ccw(sgl_display_t *disp, int32_t *left,
     }
 }
 
-static inline void sgl_rotate_area_cw(sgl_display_t *disp, int32_t *left,
+static inline void sgl_rotate_area_cw(const sgl_display_t *disp, int32_t *left,
                                       int32_t *top, int32_t *right,
                                       int32_t *bottom) {
     int32_t temp;

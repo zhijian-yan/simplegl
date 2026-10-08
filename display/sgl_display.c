@@ -9,7 +9,7 @@
 static int sgl_set_color_format(sgl_display_t *disp, uint32_t buffer_size,
                                 sgl_color_format_t color_format);
 
-int sgl_display_init(sgl_display_t *disp, sgl_display_config_t *config) {
+int sgl_display_init(sgl_display_t *disp, const sgl_display_config_t *config) {
     if (!disp || !config || !config->buffer)
         return -1;
     memset(disp, 0, sizeof(sgl_display_t));
@@ -111,7 +111,7 @@ void sgl_set_flush(sgl_display_t *disp,
     disp->flush = flush;
 }
 
-uint32_t sgl_get_frame_count(sgl_display_t *disp) {
+uint32_t sgl_get_frame_count(const sgl_display_t *disp) {
     return disp->frame_count;
 }
 
