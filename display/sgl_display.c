@@ -106,19 +106,6 @@ static int sgl_set_color_format(sgl_display_t *disp, uint32_t buffer_size,
     return ret;
 }
 
-void sgl_set_flush(sgl_display_t *disp,
-                   void (*flush)(void *buffer, sgl_rect_t *refresh)) {
-    disp->flush = flush;
-}
-
-uint32_t sgl_get_frame_count(const sgl_display_t *disp) {
-    return disp->frame_count;
-}
-
-void sgl_reset_frame_count(sgl_display_t *disp) {
-    disp->frame_count = 0;
-}
-
-void sgl_clear_buffer(sgl_display_t *disp, uint8_t value) {
+void sgl_clear_framebuffer(sgl_display_t *disp, uint8_t value) {
     memset(disp->fb.buffer, value, disp->fb.buffer_size);
 }

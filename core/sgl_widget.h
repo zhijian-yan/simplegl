@@ -15,10 +15,10 @@ typedef struct sgl_display sgl_display_t;
 
 typedef struct sgl_widget sgl_widget_t;
 
-typedef void (*sgl_draw_t)(sgl_display_t *disp, sgl_widget_t *widget);
+typedef void (*sgl_widget_draw_t)(sgl_display_t *disp, sgl_widget_t *widget);
 
 typedef struct {
-    sgl_draw_t draw;
+    sgl_widget_draw_t draw;
 } sgl_widget_vtable_t;
 
 struct sgl_widget {
@@ -35,7 +35,8 @@ void sgl_widget_init(sgl_widget_t *widget, int32_t x, int32_t y, int32_t w,
                      int32_t h, sgl_widget_vtable_t *vtable, void *user_data);
 void sgl_widget_set_rect(sgl_widget_t *widget, int32_t x, int32_t y, int32_t w,
                          int32_t h);
-void sgl_widget_vtable_config(sgl_widget_vtable_t *vtable, sgl_draw_t draw);
+void sgl_widget_vtable_config(sgl_widget_vtable_t *vtable,
+                              sgl_widget_draw_t draw);
 int sgl_widget_add(sgl_widget_t *widget, sgl_widget_t *parent);
 int sgl_widget_remove(sgl_widget_t *widget);
 

@@ -124,16 +124,18 @@ static void sgl_draw_proc(sgl_display_t *disp, sgl_widget_t *widget,
     }
 }
 
-void sgl_handler(sgl_display_t *disp) {
+sgl_rect_t *sgl_draw(sgl_display_t *disp) {
+    // if (disp->slice_state == SGL_SLICE_STATE_IDLE)
+    //     return NULL;
     sgl_buffer_slice(disp);
     sgl_draw_proc(disp, &disp->root, disp->root.rect.x, disp->root.rect.y,
                   &disp->slice_area);
-    disp->flush(disp->fb.buffer, &disp->slice_rect);
     if (disp->slice_state == SGL_SLICE_STATE_IDLE) {
         ++disp->frame_count;
         if (disp->frame_end)
             disp->frame_end(disp->user_data);
     }
+    return &disp->slice_rect;
 }
 
 void sgl_set_dirty_area(sgl_display_t *disp, int32_t left, int32_t top,

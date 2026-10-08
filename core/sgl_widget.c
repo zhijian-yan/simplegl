@@ -17,7 +17,8 @@ void sgl_widget_init(sgl_widget_t *widget, int32_t x, int32_t y, int32_t w,
     widget->user_data = user_data;
 }
 
-void sgl_widget_vtable_config(sgl_widget_vtable_t *vtable, sgl_draw_t draw) {
+void sgl_widget_vtable_config(sgl_widget_vtable_t *vtable,
+                              sgl_widget_draw_t draw) {
     vtable->draw = draw;
 }
 
