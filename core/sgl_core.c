@@ -89,7 +89,7 @@ static void sgl_buffer_slice(sgl_display_t *disp) {
                   << disp->fb.pixel_index;
         if (h_piece > disp->frame_rect.h - disp->slice_count)
             h_piece = disp->frame_rect.h - disp->slice_count;
-        disp->fb.buffer_width = w_piece;
+        disp->fb.dirty_width = w_piece;
         disp->slice_count += h_piece;
         sgl_set_rect(&disp->slice_rect, disp->buffer_offset_x,
                      disp->buffer_offset_y, w_piece, h_piece);

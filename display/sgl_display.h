@@ -25,10 +25,10 @@ typedef struct {
 
 typedef struct {
     void *buffer;
-    uint32_t buffer_size;
-    uint32_t buffer_width;
-    uint32_t pixel_num;
-    uint32_t pixel_size;
+    uint32_t buffer_size; // buffer size, in byte.
+    uint32_t dirty_width; //
+    uint32_t pixel_num;   // pixel num, in num.
+    uint32_t pixel_size;  // pixel size, in byte.
     uint32_t pixel_index;
 } sgl_framebuffer_t;
 
@@ -69,6 +69,10 @@ int sgl_set_write_pixel(sgl_display_t *disp, uint32_t hor_res,
                         uint32_t buffer_size, uint32_t pixel_size,
                         sgl_write_pixel_t write_pixel);
 void sgl_clear_framebuffer(sgl_display_t *disp, uint8_t value);
+void sgl_clear_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
+                    int32_t h, uint8_t value);
+void sgl_clear_widget(sgl_display_t *disp, const sgl_widget_t *widget,
+                      uint8_t value);
 
 static inline void sgl_set_framebuffer(sgl_display_t *disp, void *buffer) {
     disp->fb.buffer = buffer;
