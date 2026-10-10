@@ -20,9 +20,6 @@ extern "C" {
     ((uint32_t)(a) << 24 | (uint32_t)(r) << 16 | (uint32_t)(g) << 8 | \
      (uint32_t)(b))
 #define sgl_color_rgb(r, g, b) sgl_color_argb(0xFF, r, g, b)
-#define sgl_color_rgb565(r, g, b)                                           \
-    ((uint16_t)(((uint16_t)(r & 0xF8) << 8) | ((uint16_t)(g & 0xFC) << 3) | \
-                ((uint16_t)(b & 0xF8) >> 3)))
 
 void sgl_color_hsv2rgb(uint16_t h, uint8_t s, uint8_t v, uint8_t *r, uint8_t *g,
                        uint8_t *b);
@@ -49,9 +46,9 @@ static inline uint32_t sgl_color_set_v(uint32_t color, uint8_t v) {
     return sgl_color_to_rgb(h, s, v);
 }
 
-static inline uint16_t sgl_color_to_rgb565(uint32_t color) {
-    return (uint16_t)(((color >> 8) & 0xF800) | ((color >> 5) & 0x07E0) |
-                      ((color >> 3) & 0x001F));
+static inline uint32_t sgl_color_swap_rgb565(uint16_t color) {
+    uint32_t c = color;
+    return ((c << 8) | (c >> 8)) & 0xFFFF;
 }
 
 static inline uint32_t sgl_color_from_rgb565(uint16_t color) {
@@ -85,6 +82,61 @@ static inline uint32_t sgl_color_blend(uint32_t fg, uint32_t bg) {
     uint8_t b =
         (sgl_color_get_b(fg) * a + sgl_color_get_b(bg) * (255 - a)) >> 8;
     return sgl_color_rgb(r, g, b);
+}
+
+static inline uint32_t sgl_color_rgb332(uint32_t color) {
+    return ((color >> 16) & 0xE0) | ((color >> 11) & 0x1C) |
+           ((color >> 6) & 0x03);
+}
+
+static inline uint32_t sgl_color_rgb565(uint32_t color) {
+    return ((color >> 8) & 0xF800) | ((color >> 5) & 0x07E0) |
+           ((color >> 3) & 0x001F);
+}
+
+static inline uint32_t sgl_color_rgb565swap(uint32_t color) {
+    return sgl_color_swap_rgb565((uint16_t)sgl_color_rgb565(color));
+}
+
+static inline uint32_t sgl_color_bgr565(uint32_t color) {
+    return (((color >> 3) & 0x1F) << 11) | (((color >> 10) & 0x3F) << 5) |
+           ((color >> 19) & 0x1F);
+}
+
+static inline uint32_t sgl_color_rgb888(uint32_t color) {
+    return ((color & 0x000000FF) << 16) | (color & 0x0000FF00) |
+           ((color & 0x00FF0000) >> 16);
+}
+
+static inline uint32_t sgl_color_bgr888(uint32_t color) {
+    return color & 0x00FFFFFF;
+}
+
+static inline uint32_t sgl_color_xrgb8888(uint32_t color) {
+    return 0xFF | ((color & 0x00FF0000) >> 8) | ((color & 0x0000FF00) << 8) |
+           ((color & 0x000000FF) << 24);
+}
+
+static inline uint32_t sgl_color_xbgr8888(uint32_t color) {
+    return ((color & 0x00FFFFFF) << 8) | 0xFF;
+}
+
+static inline uint32_t sgl_color_argb8888(uint32_t color) {
+    return (color >> 24) | ((color & 0x00FF0000) >> 8) |
+           ((color & 0x0000FF00) << 8) | ((color & 0x000000FF) << 24);
+}
+
+static inline uint32_t sgl_color_abgr8888(uint32_t color) {
+    return ((color & 0x00FFFFFF) << 8) | (color >> 24);
+}
+
+static inline uint32_t sgl_color_rgba8888(uint32_t color) {
+    return (color & 0xFF000000) | ((color & 0x000000FF) << 16) |
+           (color & 0x0000FF00) | ((color & 0x00FF0000) >> 16);
+}
+
+static inline uint32_t sgl_color_bgra8888(uint32_t color) {
+    return color;
 }
 
 #ifdef __cplusplus

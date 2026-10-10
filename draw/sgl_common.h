@@ -25,11 +25,7 @@ extern "C" {
 
 static inline void sgl_write_hpixel(sgl_display_t *disp, int32_t x, int32_t y,
                                     int32_t len, uint32_t color) {
-    int32_t x1 = x + len;
-    sgl_write_pixel_t write_pixel = disp->write_pixel;
-    sgl_framebuffer_t *fb = &disp->fb;
-    for (len = (len > 0) ? 1 : -1; x != x1; x += len)
-        write_pixel(fb, x, y, color);
+    disp->write_pixel_hline(&disp->fb, x, y, len, color);
 }
 
 static inline void sgl_write_vpixel(sgl_display_t *disp, int32_t x, int32_t y,

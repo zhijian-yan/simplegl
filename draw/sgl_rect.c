@@ -14,14 +14,10 @@ void sgl_draw_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
         sgl_rotate_rect_ccw(disp, &x, &y, &w, &h);
         sgl_normalize_rect(&x, &y, &w, &h);
         sgl_buffer_offset(x, y);
-        if (w > h) {
-            for (h += y; y < h; ++y) {
-                sgl_write_hpixel(disp, x, y, w, color);
-            }
-        } else {
-            for (w += x; x < w; ++x) {
-                sgl_write_vpixel(disp, x, y, h, color);
-            }
+        sgl_write_pixel_hline_t write_pixel_hline = disp->write_pixel_hline;
+        sgl_framebuffer_t *fb = &disp->fb;
+        for (h += y; y < h; ++y) {
+            write_pixel_hline(fb, x, y, w, color);
         }
     } else {
         sgl_normalize_rect(&x, &y, &w, &h);
