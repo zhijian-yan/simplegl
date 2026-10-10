@@ -3,12 +3,6 @@
 
 #include "sgl_bitmap.h"
 #include "sgl_common.h"
-#include "sgl_line.h"
-
-static inline uint32_t sgl_bitmap_24b_value(const uint8_t *pixel) {
-    return (uint32_t)pixel[0] | ((uint32_t)pixel[1] << 8) |
-           ((uint32_t)pixel[2] << 16);
-}
 
 static void sgl_rotate_bitmap(const sgl_display_t *disp, int32_t *x, int32_t *y,
                               int32_t *dx, int32_t *dy, int32_t w, int32_t h,
@@ -231,7 +225,7 @@ void sgl_draw_bitmap_24b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                write_pixel(fb, x + j, y, sgl_bitmap_24b_value(p));
+                write_pixel(fb, x + j, y, *(const uint32_t *)p | 0xFF000000);
             }
             src += src_row;
             ++y;
@@ -240,7 +234,7 @@ void sgl_draw_bitmap_24b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
         for (i = 0; i < h; ++i) {
             const uint8_t *p = src;
             for (j = 0; j < w; ++j, p += src_step) {
-                write_pixel(fb, x, y + j, sgl_bitmap_24b_value(p));
+                write_pixel(fb, x, y + j, *(const uint32_t *)p | 0xFF000000);
             }
             src += src_row;
             ++x;
