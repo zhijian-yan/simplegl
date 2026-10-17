@@ -108,16 +108,16 @@ static void sgl_draw_proc(sgl_display_t *disp, sgl_widget_t *widget,
                           const sgl_area_t *parent_bounds) {
     sgl_widget_t *child;
     sgl_area_t bounds;
-    disp->logical_offset_x = offset_x;
-    disp->logical_offset_y = offset_y;
     if (sgl_set_area_within(&bounds, parent_bounds, offset_x, offset_y,
                             offset_x + widget->rect.w - 1,
-                            offset_y + widget->rect.h - 1) == 0) {
-        disp->widget_bounds = bounds;
-        disp->clip_area = bounds;
-        if (widget->vtable->draw)
-            widget->vtable->draw(disp, widget);
-    }
+                            offset_y + widget->rect.h - 1))
+        return;
+    disp->logical_offset_x = offset_x;
+    disp->logical_offset_y = offset_y;
+    disp->widget_bounds = bounds;
+    disp->clip_area = bounds;
+    if (widget->vtable->draw)
+        widget->vtable->draw(disp, widget);
     sgl_list_for_each_entry(child, &widget->children, sibling) {
         sgl_draw_proc(disp, child, offset_x + child->rect.x,
                       offset_y + child->rect.y, &bounds);
