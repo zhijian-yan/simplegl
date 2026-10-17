@@ -6,7 +6,7 @@
 
 void sgl_draw_point(sgl_display_t *disp, int32_t x, int32_t y, uint32_t color) {
     sgl_logical_offset(x, y);
-    if (sgl_area_is_intersect(&disp->clip_area, x, y, x, y))
+    if (!sgl_area_is_intersect(&disp->clip_area, x, y, x, y))
         return;
     sgl_rotate_point_ccw(disp, &x, &y);
     sgl_buffer_offset(x, y);

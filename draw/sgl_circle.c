@@ -124,7 +124,8 @@ void sgl_draw_circle(sgl_display_t *disp, int32_t xc, int32_t yc, int32_t r,
                      int32_t is_filled, uint32_t color) {
     if (r < 0)
         r = -r;
-    if (sgl_area_is_intersect(&disp->clip_area, xc - r, yc - r, xc + r, yc + r))
+    if (!sgl_area_is_intersect(&disp->clip_area, xc - r, yc - r, xc + r,
+                               yc + r))
         return;
     sgl_draw_circle_with_offset(disp, xc, yc, r, 0, is_filled, color);
 }
@@ -135,7 +136,7 @@ void sgl_draw_circle_with_diameter(sgl_display_t *disp, int32_t x, int32_t y,
     int32_t r;
     if (d < 0)
         d = -d;
-    if (sgl_area_is_intersect(&disp->clip_area, x, y, x + d, y + d))
+    if (!sgl_area_is_intersect(&disp->clip_area, x, y, x + d, y + d))
         return;
     if (d == 2) {
         sgl_draw_hline(disp, x, y, 2, color);
@@ -262,8 +263,8 @@ void sgl_draw_ellipse(sgl_display_t *disp, int32_t xc, int32_t yc, int32_t rx,
         rx = -rx;
     if (ry < 0)
         ry = -ry;
-    if (sgl_area_is_intersect(&disp->clip_area, xc - rx, yc - ry, xc + rx,
-                              yc + ry))
+    if (!sgl_area_is_intersect(&disp->clip_area, xc - rx, yc - ry, xc + rx,
+                               yc + ry))
         return;
     if (is_filled == 0 && rx > 0 && ry > 0) {
         sgl_draw_point(disp, xc + rx, yc, color); // 1, 2

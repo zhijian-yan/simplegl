@@ -70,8 +70,8 @@ static inline int sgl_area_is_intersect(const sgl_area_t *bounds, int32_t left,
                                         int32_t bottom) {
     if (left > bounds->right || right < bounds->left || top > bounds->bottom ||
         bottom < bounds->top)
-        return -1;
-    return 0;
+        return 0;
+    return -1;
 }
 
 static inline int sgl_area_get_intersect(const sgl_area_t *a,
