@@ -8,63 +8,8 @@
 #define SGL_SLICE_STATE_START   1
 #define SGL_SLICE_STATE_RUNNING 2
 
-static inline void sgl_set_rect(sgl_rect_t *rect, int32_t x, int32_t y,
-                                int32_t w, int32_t h) {
-    rect->x = x;
-    rect->y = y;
-    rect->w = w;
-    rect->h = h;
-}
-
-static inline void sgl_set_area(sgl_area_t *area, int32_t left, int32_t top,
-                                int32_t right, int32_t bottom) {
-    area->left = left;
-    area->top = top;
-    area->right = right;
-    area->bottom = bottom;
-}
-
-static inline void sgl_area2rect(const sgl_area_t *area, sgl_rect_t *rect) {
-    rect->x = area->left;
-    rect->y = area->top;
-    rect->w = area->right - area->left + 1;
-    rect->h = area->bottom - area->top + 1;
-}
-
-static inline void sgl_rect2area(const sgl_rect_t *rect, sgl_area_t *area) {
-    area->left = rect->x;
-    area->top = rect->y;
-    if (rect->w > 0)
-        area->right = rect->x + rect->w - 1;
-    else
-        area->right = rect->x - rect->w - 1;
-    if (rect->h > 0)
-        area->bottom = rect->y + rect->h - 1;
-    else
-        area->bottom = rect->y - rect->h - 1;
-}
-
-static inline int sgl_set_area_within(sgl_area_t *area,
-                                      const sgl_area_t *bounds, int32_t left,
-                                      int32_t top, int32_t right,
-                                      int32_t bottom) {
-    if (sgl_check_area(bounds, left, top, right, bottom))
-        return -1;
-    if (left < bounds->left)
-        left = bounds->left;
-    if (top < bounds->top)
-        top = bounds->top;
-    if (right > bounds->right)
-        right = bounds->right;
-    if (bottom > bounds->bottom)
-        bottom = bounds->bottom;
-    sgl_set_area(area, left, top, right, bottom);
-    return 0;
-}
-
 static void sgl_buffer_slice(sgl_display_t *disp) {
-    uint32_t w_piece, h_piece;
-    sgl_rect_t temp;
+    int32_t w_piece, h_piece;
     if (disp->slice_state == SGL_SLICE_STATE_IDLE) {
         disp->slice_state = SGL_SLICE_STATE_START;
     }
@@ -76,8 +21,6 @@ static void sgl_buffer_slice(sgl_display_t *disp) {
         disp->frame_rect = disp->dirty_rect;
         sgl_rotate_rect_ccw(disp, &disp->frame_rect.x, &disp->frame_rect.y,
                             &disp->frame_rect.w, &disp->frame_rect.h);
-        sgl_normalize_rect(&disp->frame_rect.x, &disp->frame_rect.y,
-                           &disp->frame_rect.w, &disp->frame_rect.h);
         disp->slice_count = 0;
         disp->slice_state = SGL_SLICE_STATE_RUNNING;
     }
@@ -93,10 +36,9 @@ static void sgl_buffer_slice(sgl_display_t *disp) {
         disp->slice_count += h_piece;
         sgl_set_rect(&disp->slice_rect, disp->buffer_offset_x,
                      disp->buffer_offset_y, w_piece, h_piece);
-        temp = disp->slice_rect;
-        sgl_rotate_rect_cw(disp, &temp.x, &temp.y, &temp.w, &temp.h);
-        sgl_normalize_rect(&temp.x, &temp.y, &temp.w, &temp.h);
-        sgl_rect2area(&temp, &disp->slice_area);
+        sgl_rect2area(&disp->slice_rect, &disp->slice_area);
+        sgl_rotate_area_cw(disp, &disp->slice_area.left, &disp->slice_area.top,
+                           &disp->slice_area.right, &disp->slice_area.bottom);
         if (disp->slice_count == disp->frame_rect.h) {
             disp->slice_state = SGL_SLICE_STATE_IDLE;
         }

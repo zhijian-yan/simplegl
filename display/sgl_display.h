@@ -21,10 +21,10 @@ typedef enum {
 
 typedef struct {
     void *buffer;
-    uint32_t buffer_size;
+    int32_t buffer_size;
     sgl_rotate_t rotate;
-    uint32_t hor_res;
-    uint32_t ver_res;
+    int32_t hor_res;
+    int32_t ver_res;
     void *user_data;
     sgl_pixel_format_t pixel_format;
     void (*frame_start)(void *user_data);
@@ -33,11 +33,11 @@ typedef struct {
 
 typedef struct {
     void *buffer;
-    uint32_t buffer_size;
-    uint32_t dirty_width;
-    uint32_t pixel_num;
-    uint32_t pixel_size;
-    uint32_t pixel_index;
+    int32_t buffer_size;
+    int32_t dirty_width;
+    int32_t pixel_num;
+    int32_t pixel_size;
+    int32_t pixel_index;
 } sgl_framebuffer_t;
 
 typedef void (*sgl_write_pixel_t)(sgl_framebuffer_t *fb, int32_t x, int32_t y,
@@ -49,12 +49,12 @@ typedef void (*sgl_write_pixel_hline_t)(sgl_framebuffer_t *fb, int32_t x,
 
 typedef struct sgl_display {
     sgl_framebuffer_t fb;
-    uint32_t hor_res;
-    uint32_t ver_res;
-    uint32_t max_x;
-    uint32_t max_y;
-    uint32_t buffer_offset_x;
-    uint32_t buffer_offset_y;
+    int32_t hor_res;
+    int32_t ver_res;
+    int32_t max_x;
+    int32_t max_y;
+    int32_t buffer_offset_x;
+    int32_t buffer_offset_y;
     int32_t logical_offset_x;
     int32_t logical_offset_y;
     sgl_area_t clip_area;
@@ -64,8 +64,8 @@ typedef struct sgl_display {
     sgl_rect_t frame_rect;
     sgl_rect_t dirty_rect;
     sgl_rect_t slice_rect;
-    uint32_t slice_count;
-    uint32_t frame_count;
+    int32_t slice_count;
+    int32_t frame_count;
     uint8_t slice_state;
     sgl_rotate_t rotate;
     sgl_widget_t root;
@@ -87,7 +87,7 @@ static inline void sgl_set_framebuffer(sgl_display_t *disp, void *buffer) {
     disp->fb.buffer = buffer;
 }
 
-static inline uint32_t sgl_get_frame_count(const sgl_display_t *disp) {
+static inline int32_t sgl_get_frame_count(const sgl_display_t *disp) {
     return disp->frame_count;
 }
 

@@ -8,7 +8,7 @@
 #include "sgl_pixel.h"
 #include <string.h>
 
-static int sgl_set_pixel_format(sgl_display_t *disp, uint32_t buffer_size,
+static int sgl_set_pixel_format(sgl_display_t *disp, int32_t buffer_size,
                                 sgl_pixel_format_t pixel_format);
 
 int sgl_display_init(sgl_display_t *disp, const sgl_display_config_t *config) {
@@ -30,11 +30,11 @@ int sgl_display_init(sgl_display_t *disp, const sgl_display_config_t *config) {
     return 0;
 }
 
-static int sgl_set_pixel_format(sgl_display_t *disp, uint32_t buffer_size,
+static int sgl_set_pixel_format(sgl_display_t *disp, int32_t buffer_size,
                                 sgl_pixel_format_t pixel_format) {
-    uint32_t pixel_size = 1;
-    uint32_t pixel_index = 0;
-    uint32_t pixel_num;
+    int32_t pixel_size = 1;
+    int32_t pixel_index = 0;
+    int32_t pixel_num;
     switch (pixel_format) {
         case SGL_PIXEL_FORMAT_1BIT:
             pixel_size = 1;
@@ -78,7 +78,7 @@ static int sgl_set_pixel_format(sgl_display_t *disp, uint32_t buffer_size,
 }
 
 void sgl_clear_framebuffer(sgl_display_t *disp, uint8_t value) {
-    memset(disp->fb.buffer, value, disp->fb.buffer_size);
+    memset(disp->fb.buffer, value, (size_t)disp->fb.buffer_size);
 }
 
 void sgl_clear_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
@@ -86,16 +86,16 @@ void sgl_clear_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
     sgl_logical_offset(x, y);
     if (sgl_clip_rect(&disp->clip_area, &x, &y, &w, &h))
         return;
-    sgl_rotate_rect_ccw(disp, &x, &y, &w, &h);
     sgl_normalize_rect(&x, &y, &w, &h);
+    sgl_rotate_rect_ccw(disp, &x, &y, &w, &h);
     sgl_buffer_offset(x, y);
     sgl_framebuffer_t *fb = &disp->fb;
-    uint32_t rect_width_size = w * fb->pixel_size;
-    uint32_t dirty_width_size = fb->dirty_width * fb->pixel_size;
+    int32_t rect_width_size = w * fb->pixel_size;
+    int32_t dirty_width_size = fb->dirty_width * fb->pixel_size;
     uint8_t *src = (uint8_t *)fb->buffer;
     src += x * fb->pixel_size + y * dirty_width_size;
-    for (int i = 0; i < h; ++i) {
-        memset(src, value, rect_width_size);
+    for (int32_t i = 0; i < h; ++i) {
+        memset(src, value, (size_t)rect_width_size);
         src += dirty_width_size;
     }
 }

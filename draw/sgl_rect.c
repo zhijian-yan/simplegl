@@ -11,8 +11,8 @@ void sgl_draw_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
         sgl_logical_offset(x, y);
         if (sgl_clip_rect(&disp->clip_area, &x, &y, &w, &h))
             return;
-        sgl_rotate_rect_ccw(disp, &x, &y, &w, &h);
         sgl_normalize_rect(&x, &y, &w, &h);
+        sgl_rotate_rect_ccw(disp, &x, &y, &w, &h);
         sgl_buffer_offset(x, y);
         sgl_write_pixel_hline_t write_pixel_hline = disp->write_pixel_hline;
         sgl_framebuffer_t *fb = &disp->fb;
