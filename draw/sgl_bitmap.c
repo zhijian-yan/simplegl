@@ -62,10 +62,10 @@ static int sgl_bitmap_prepare(const sgl_display_t *disp, sgl_dir_t dir,
     logical_x = *x;
     logical_y = *y;
     if (dir == SGL_DIR_UP || dir == SGL_DIR_DOWN) {
-        if (sgl_clip_rect(&disp->drawable_area, x, y, w, h))
+        if (sgl_clip_rect(&disp->clip_area, x, y, w, h))
             return -1;
     } else {
-        if (sgl_clip_rect(&disp->drawable_area, x, y, h, w))
+        if (sgl_clip_rect(&disp->clip_area, x, y, h, w))
             return -1;
     }
     dx = *x - logical_x;

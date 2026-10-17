@@ -114,7 +114,7 @@ static void sgl_draw_proc(sgl_display_t *disp, sgl_widget_t *widget,
                             offset_x + widget->rect.w - 1,
                             offset_y + widget->rect.h - 1) == 0) {
         disp->widget_bounds = bounds;
-        disp->drawable_area = bounds;
+        disp->clip_area = bounds;
         if (widget->vtable->draw)
             widget->vtable->draw(disp, widget);
     }
@@ -148,14 +148,14 @@ void sgl_reset_dirty_area(sgl_display_t *disp) {
     // disp->dirty_area = disp->root.area;
 }
 
-int sgl_set_drawable_area(sgl_display_t *disp, int32_t left, int32_t top,
-                          int32_t right, int32_t bottom) {
-    return sgl_set_area_within(&disp->drawable_area, &disp->widget_bounds, left,
+int sgl_set_clip_area(sgl_display_t *disp, int32_t left, int32_t top,
+                      int32_t right, int32_t bottom) {
+    return sgl_set_area_within(&disp->clip_area, &disp->widget_bounds, left,
                                top, right, bottom);
 }
 
-void sgl_reset_drawable_area(sgl_display_t *disp) {
-    disp->drawable_area = disp->widget_bounds;
+void sgl_reset_clip_area(sgl_display_t *disp) {
+    disp->clip_area = disp->widget_bounds;
 }
 
 void sgl_set_display_rotation(sgl_display_t *disp, sgl_rotate_t rotate) {

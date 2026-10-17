@@ -84,7 +84,7 @@ void sgl_clear_framebuffer(sgl_display_t *disp, uint8_t value) {
 void sgl_clear_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
                     int32_t h, uint8_t value) {
     sgl_logical_offset(x, y);
-    if (sgl_clip_rect(&disp->drawable_area, &x, &y, &w, &h))
+    if (sgl_clip_rect(&disp->clip_area, &x, &y, &w, &h))
         return;
     sgl_rotate_rect_ccw(disp, &x, &y, &w, &h);
     sgl_normalize_rect(&x, &y, &w, &h);

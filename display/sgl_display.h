@@ -57,7 +57,7 @@ typedef struct sgl_display {
     uint32_t buffer_offset_y;
     int32_t logical_offset_x;
     int32_t logical_offset_y;
-    sgl_area_t drawable_area;
+    sgl_area_t clip_area;
     sgl_area_t widget_bounds;
     sgl_area_t dirty_area;
     sgl_area_t slice_area;
