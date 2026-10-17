@@ -78,13 +78,10 @@ typedef struct sgl_display {
 } sgl_display_t;
 
 int sgl_display_init(sgl_display_t *disp, const sgl_display_config_t *config);
-int sgl_set_pixel_format(sgl_display_t *disp, uint32_t buffer_size,
-                         sgl_pixel_format_t pixel_format);
 void sgl_clear_framebuffer(sgl_display_t *disp, uint8_t value);
 void sgl_clear_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
                     int32_t h, uint8_t value);
-void sgl_clear_widget(sgl_display_t *disp, const sgl_widget_t *widget,
-                      uint8_t value);
+void sgl_clear_widget(const sgl_widget_t *widget, uint8_t value);
 
 static inline void sgl_set_framebuffer(sgl_display_t *disp, void *buffer) {
     disp->fb.buffer = buffer;

@@ -27,14 +27,14 @@ struct sgl_widget {
     struct sgl_list_head children;
     sgl_rect_t rect;
     sgl_widget_vtable_t *vtable;
+    sgl_display_t *disp;
     void *user_data;
     uint16_t flags;
 };
 
-void sgl_widget_init(sgl_widget_t *widget, int32_t x, int32_t y, int32_t w,
-                     int32_t h, sgl_widget_vtable_t *vtable, void *user_data);
-void sgl_widget_set_rect(sgl_widget_t *widget, int32_t x, int32_t y, int32_t w,
-                         int32_t h);
+int sgl_widget_init(sgl_widget_t *widget, sgl_widget_vtable_t *vtable,
+                    int32_t x, int32_t y, int32_t w, int32_t h,
+                    void *user_data);
 void sgl_widget_vtable_config(sgl_widget_vtable_t *vtable,
                               sgl_widget_draw_t draw);
 int sgl_widget_add(sgl_widget_t *widget, sgl_widget_t *parent);
@@ -48,6 +48,14 @@ static inline void sgl_widget_set_coords(sgl_widget_t *widget, int32_t x,
 
 static inline void sgl_widget_set_size(sgl_widget_t *widget, int32_t w,
                                        int32_t h) {
+    widget->rect.w = w;
+    widget->rect.h = h;
+}
+
+static inline void sgl_widget_set_rect(sgl_widget_t *widget, int32_t x,
+                                       int32_t y, int32_t w, int32_t h) {
+    widget->rect.x = x;
+    widget->rect.y = y;
     widget->rect.w = w;
     widget->rect.h = h;
 }

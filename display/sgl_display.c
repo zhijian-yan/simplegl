@@ -3,9 +3,13 @@
 
 #include "sgl_display.h"
 #include "core/sgl_core.h"
+#include "core/sgl_widget.h"
 #include "draw/sgl_common.h"
 #include "sgl_pixel.h"
 #include <string.h>
+
+static int sgl_set_pixel_format(sgl_display_t *disp, uint32_t buffer_size,
+                                sgl_pixel_format_t pixel_format);
 
 int sgl_display_init(sgl_display_t *disp, const sgl_display_config_t *config) {
     if (!disp || !config || !config->buffer)
@@ -18,16 +22,16 @@ int sgl_display_init(sgl_display_t *disp, const sgl_display_config_t *config) {
     disp->frame_end = config->frame_end;
     if (sgl_set_pixel_format(disp, config->buffer_size, config->pixel_format))
         return -1;
-    sgl_init_list_head(&disp->root.sibling);
-    sgl_init_list_head(&disp->root.children);
-    disp->root.vtable = &disp->background;
+    sgl_widget_init(&disp->root, &disp->background, 0, 0, config->hor_res,
+                    config->ver_res, NULL);
+    disp->root.disp = disp;
     sgl_set_display_rotation(disp, config->rotate);
     disp->dirty_rect = disp->root.rect;
     return 0;
 }
 
-int sgl_set_pixel_format(sgl_display_t *disp, uint32_t buffer_size,
-                         sgl_pixel_format_t pixel_format) {
+static int sgl_set_pixel_format(sgl_display_t *disp, uint32_t buffer_size,
+                                sgl_pixel_format_t pixel_format) {
     uint32_t pixel_size = 1;
     uint32_t pixel_index = 0;
     uint32_t pixel_num;
@@ -96,7 +100,6 @@ void sgl_clear_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
     }
 }
 
-void sgl_clear_widget(sgl_display_t *disp, const sgl_widget_t *widget,
-                      uint8_t value) {
-    sgl_clear_rect(disp, 0, 0, widget->rect.w, widget->rect.h, value);
+void sgl_clear_widget(const sgl_widget_t *widget, uint8_t value) {
+    sgl_clear_rect(widget->disp, 0, 0, widget->rect.w, widget->rect.h, value);
 }
