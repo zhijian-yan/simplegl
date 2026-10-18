@@ -11,16 +11,16 @@
 extern "C" {
 #endif
 
-#define sgl_logical_offset(x, y)       \
-    {                                  \
-        (x) += disp->logical_offset_x; \
-        (y) += disp->logical_offset_y; \
+#define sgl_logical_offset(x, y) \
+    {                            \
+        (x) += disp->logical_ox; \
+        (y) += disp->logical_oy; \
     }
 
-#define sgl_buffer_offset(x, y)       \
-    {                                 \
-        (x) -= disp->buffer_offset_x; \
-        (y) -= disp->buffer_offset_y; \
+#define sgl_buffer_offset(x, y) \
+    {                           \
+        (x) -= disp->buffer_ox; \
+        (y) -= disp->buffer_oy; \
     }
 
 #define SGL_COORD_MAX ((int32_t)1 << 29)

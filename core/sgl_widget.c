@@ -4,10 +4,12 @@
 #include "sgl_widget.h"
 #include <string.h>
 
-int sgl_widget_init(sgl_widget_t *widget, sgl_widget_vtable_t *vtable,
-                    int32_t x, int32_t y, int32_t w, int32_t h,
-                    void *user_data) {
-    if (!widget || !vtable)
+#define sgl_widget_walk_to_root(widget, parent) \
+    for (parent = widget->parent; parent; parent = parent->parent)
+
+int sgl_widget_init(sgl_widget_t *widget, sgl_widget_class_t *cls, int32_t x,
+                    int32_t y, int32_t w, int32_t h, void *user_data) {
+    if (!widget || !cls)
         return -1;
     memset(widget, 0, sizeof(sgl_widget_t));
     sgl_init_list_head(&widget->sibling);
@@ -16,14 +18,13 @@ int sgl_widget_init(sgl_widget_t *widget, sgl_widget_vtable_t *vtable,
     widget->rect.y = y;
     widget->rect.w = w;
     widget->rect.h = h;
-    widget->vtable = vtable;
+    widget->cls = cls;
     widget->user_data = user_data;
     return 0;
 }
 
-void sgl_widget_vtable_config(sgl_widget_vtable_t *vtable,
-                              sgl_widget_draw_t draw) {
-    vtable->draw = draw;
+void sgl_widget_class_config(sgl_widget_class_t *cls, sgl_widget_draw_t draw) {
+    cls->draw = draw;
 }
 
 static void sgl_widget_set_display(sgl_widget_t *widget, sgl_display_t *disp) {
@@ -32,6 +33,29 @@ static void sgl_widget_set_display(sgl_widget_t *widget, sgl_display_t *disp) {
     sgl_list_for_each_entry(child, &widget->children, sibling) {
         sgl_widget_set_display(child, disp);
     }
+}
+
+void sgl_widget_traverse(sgl_widget_t *widget) {
+    sgl_widget_t *child;
+    sgl_list_for_each_entry(child, &widget->children, sibling) {
+        sgl_widget_traverse(child);
+    }
+}
+
+int sgl_widget_get_origin_coords(sgl_widget_t *widget, int32_t *ox,
+                                 int32_t *oy) {
+    if (!widget || !ox || !oy)
+        return -1;
+    sgl_widget_t *parent;
+    int32_t x = widget->rect.x;
+    int32_t y = widget->rect.y;
+    sgl_widget_walk_to_root(widget, parent) {
+        x += parent->rect.x;
+        y += parent->rect.y;
+    }
+    *ox = x;
+    *oy = y;
+    return 0;
 }
 
 int sgl_widget_add(sgl_widget_t *widget, sgl_widget_t *parent) {

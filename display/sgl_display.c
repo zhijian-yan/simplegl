@@ -26,7 +26,6 @@ int sgl_display_init(sgl_display_t *disp, const sgl_display_config_t *config) {
                     config->ver_res, NULL);
     disp->root.disp = disp;
     sgl_set_display_rotation(disp, config->rotate);
-    disp->dirty_rect = disp->root.rect;
     return 0;
 }
 

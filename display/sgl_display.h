@@ -40,6 +40,13 @@ typedef struct {
     int32_t pixel_index;
 } sgl_framebuffer_t;
 
+typedef struct {
+    sgl_area_t slice_area;
+    sgl_rect_t frame_rect;
+    int32_t slice_count;
+    int32_t slice_state;
+} sgl_slice_t;
+
 typedef void (*sgl_write_pixel_t)(sgl_framebuffer_t *fb, int32_t x, int32_t y,
                                   uint32_t format_color);
 
@@ -49,27 +56,21 @@ typedef void (*sgl_write_pixel_hline_t)(sgl_framebuffer_t *fb, int32_t x,
 
 typedef struct sgl_display {
     sgl_framebuffer_t fb;
+    sgl_slice_t slice;
     int32_t hor_res;
     int32_t ver_res;
     int32_t max_x;
     int32_t max_y;
-    int32_t buffer_offset_x;
-    int32_t buffer_offset_y;
-    int32_t logical_offset_x;
-    int32_t logical_offset_y;
+    int32_t logical_ox;
+    int32_t logical_oy;
+    int32_t buffer_ox;
+    int32_t buffer_oy;
     sgl_area_t clip_area;
     sgl_area_t widget_bounds;
-    sgl_area_t dirty_area;
-    sgl_area_t slice_area;
-    sgl_rect_t frame_rect;
-    sgl_rect_t dirty_rect;
-    sgl_rect_t slice_rect;
-    int32_t slice_count;
     int32_t frame_count;
-    uint8_t slice_state;
     sgl_rotate_t rotate;
     sgl_widget_t root;
-    sgl_widget_vtable_t background;
+    sgl_widget_class_t background;
     void *user_data;
     sgl_write_pixel_t write_pixel;
     sgl_write_pixel_hline_t write_pixel_hline;
