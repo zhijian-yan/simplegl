@@ -5,7 +5,6 @@
 #include "core/sgl_core.h"
 #include "draw/sgl_common.h"
 #include "sgl_pixel.h"
-#include <string.h>
 
 static int sgl_set_pixel_format(sgl_display_t *disp, int32_t buffer_size,
                                 sgl_pixel_format_t pixel_format);

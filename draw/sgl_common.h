@@ -5,6 +5,7 @@
 #define SGL_COMMON_H
 
 #include "display/sgl_display.h"
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -118,6 +119,27 @@ static inline void sgl_write_vpixel(sgl_display_t *disp, int32_t x, int32_t y,
     sgl_framebuffer_t *fb = &disp->fb;
     for (len = (len > 0) ? 1 : -1; y != y1; y += len)
         write_pixel(fb, x, y, color);
+}
+
+static inline void sgl_write_rect(sgl_display_t *disp, int32_t x, int32_t y,
+                                  int32_t w, int32_t h, uint32_t color) {
+    sgl_framebuffer_t *fb = &disp->fb;
+    if (fb->pixel_index) {
+        for (int32_t i = 0; i < h; ++i)
+            sgl_write_hpixel(disp, x, y + i, w, color);
+        return;
+    }
+    sgl_write_hpixel(disp, x, y, w, color);
+    uint8_t *src =
+        (uint8_t *)fb->buffer +
+        (x + (y >> fb->pixel_index) * fb->dirty_width) * fb->pixel_size;
+    uint8_t *des = src;
+    int32_t line_size = w * fb->pixel_size;
+    int32_t line_stride = fb->dirty_width * fb->pixel_size;
+    for (int32_t i = 1; i < h; ++i) {
+        des += line_stride;
+        memcpy(des, src, (size_t)line_size);
+    }
 }
 
 static inline void sgl_normalize_line(int32_t *posi, int32_t *len) {
