@@ -4,7 +4,6 @@
 #ifndef SGL_COMMON_H
 #define SGL_COMMON_H
 
-#include "core/sgl_types.h"
 #include "display/sgl_display.h"
 
 #ifdef __cplusplus

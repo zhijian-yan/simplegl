@@ -4,6 +4,7 @@
 #ifndef SGL_LIST_H
 #define SGL_LIST_H
 
+#include "sgl_types.h"
 #include <stddef.h>
 
 #ifdef __cplusplus
@@ -12,11 +13,6 @@ extern "C" {
 
 #define sgl_container_of(ptr, type, member) \
     ((type *)((char *)(ptr) - offsetof(type, member)))
-
-struct sgl_list_head {
-    struct sgl_list_head *next;
-    struct sgl_list_head *prev;
-};
 
 #define SGL_LIST_HEAD_INIT(name) {&(name), &(name)}
 #define SGL_LIST_HEAD(name)      struct sgl_list_head name = SGL_LIST_HEAD_INIT(name)

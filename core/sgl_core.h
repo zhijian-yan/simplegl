@@ -5,7 +5,6 @@
 #define SGL_CORE_H
 
 #include "display/sgl_display.h"
-#include "sgl_types.h"
 
 #ifdef __cplusplus
 extern "C" {

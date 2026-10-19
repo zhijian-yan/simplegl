@@ -4,7 +4,6 @@
 #ifndef SGL_BITMAP_H
 #define SGL_BITMAP_H
 
-#include "core/sgl_types.h"
 #include "display/sgl_display.h"
 
 #ifdef __cplusplus

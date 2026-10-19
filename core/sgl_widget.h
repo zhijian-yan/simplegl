@@ -4,7 +4,6 @@
 #ifndef SGL_WIDGET_H
 #define SGL_WIDGET_H
 
-#include "sgl_list.h"
 #include "sgl_types.h"
 
 #ifdef __cplusplus

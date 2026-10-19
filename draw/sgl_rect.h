@@ -4,7 +4,6 @@
 #ifndef SGL_RECT_H
 #define SGL_RECT_H
 
-#include "core/sgl_types.h"
 #include "display/sgl_display.h"
 
 #ifdef __cplusplus

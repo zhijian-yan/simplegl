@@ -4,7 +4,6 @@
 #ifndef SGL_PIXEL_H
 #define SGL_PIXEL_H
 
-#include "core/sgl_types.h"
 #include "sgl_display.h"
 
 #ifdef __cplusplus

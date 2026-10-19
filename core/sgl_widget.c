@@ -2,6 +2,7 @@
 // Copyright (c) 2025-2026 Zhijian Yan
 
 #include "sgl_widget.h"
+#include "sgl_list.h"
 #include <string.h>
 
 #define sgl_widget_walk_to_root(widget, parent) \

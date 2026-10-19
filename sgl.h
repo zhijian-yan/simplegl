@@ -5,7 +5,6 @@
 #define SIMPLEGL_H
 
 #include "core/sgl_core.h"
-#include "core/sgl_widget.h"
 #include "display/sgl_color.h"
 #include "draw/sgl_bitmap.h"
 #include "draw/sgl_circle.h"

@@ -3,6 +3,7 @@
 
 #include "sgl_core.h"
 #include "draw/sgl_common.h"
+#include "sgl_list.h"
 
 #define SGL_SLICE_STATE_IDLE    0
 #define SGL_SLICE_STATE_START   1

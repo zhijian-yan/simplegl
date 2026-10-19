@@ -3,7 +3,6 @@
 
 #include "sgl_display.h"
 #include "core/sgl_core.h"
-#include "core/sgl_widget.h"
 #include "draw/sgl_common.h"
 #include "sgl_pixel.h"
 #include <string.h>

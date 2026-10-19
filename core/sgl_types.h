@@ -76,6 +76,11 @@ typedef struct {
     int32_t h;
 } sgl_rect_t;
 
+struct sgl_list_head {
+    struct sgl_list_head *next;
+    struct sgl_list_head *prev;
+};
+
 #ifdef __cplusplus
 }
 #endif

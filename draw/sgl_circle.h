@@ -4,7 +4,6 @@
 #ifndef SGL_CIRCLE_H
 #define SGL_CIRCLE_H
 
-#include "core/sgl_types.h"
 #include "display/sgl_display.h"
 
 #ifdef __cplusplus
