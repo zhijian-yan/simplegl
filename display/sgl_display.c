@@ -34,32 +34,32 @@ static int sgl_set_pixel_format(sgl_display_t *disp, int32_t buffer_size,
         case SGL_PIXEL_FORMAT_1BIT:
             pixel_size = 1;
             pixel_index = 3;
-            disp->write_pixel = sgl_write_pixel_1b;
-            disp->write_pixel_hline = sgl_write_pixel_hline_1b;
+            disp->write_pixel = sgl_write_pixel_1bpp;
+            disp->write_pixel_hline = sgl_write_pixel_hline_1bpp;
             break;
         case SGL_PIXEL_FORMAT_8BIT:
             pixel_size = 1;
             pixel_index = 0;
-            disp->write_pixel = sgl_write_pixel_8b;
-            disp->write_pixel_hline = sgl_write_pixel_hline_8b;
+            disp->write_pixel = sgl_write_pixel_8bpp;
+            disp->write_pixel_hline = sgl_write_pixel_hline_8bpp;
             break;
         case SGL_PIXEL_FORMAT_16BIT:
             pixel_size = 2;
             pixel_index = 0;
-            disp->write_pixel = sgl_write_pixel_16b;
-            disp->write_pixel_hline = sgl_write_pixel_hline_16b;
+            disp->write_pixel = sgl_write_pixel_16bpp;
+            disp->write_pixel_hline = sgl_write_pixel_hline_16bpp;
             break;
         case SGL_PIXEL_FORMAT_24BIT:
             pixel_size = 3;
             pixel_index = 0;
-            disp->write_pixel = sgl_write_pixel_24b;
-            disp->write_pixel_hline = sgl_write_pixel_hline_24b;
+            disp->write_pixel = sgl_write_pixel_24bpp;
+            disp->write_pixel_hline = sgl_write_pixel_hline_24bpp;
             break;
         case SGL_PIXEL_FORMAT_32BIT:
             pixel_size = 4;
             pixel_index = 0;
-            disp->write_pixel = sgl_write_pixel_32b;
-            disp->write_pixel_hline = sgl_write_pixel_hline_32b;
+            disp->write_pixel = sgl_write_pixel_32bpp;
+            disp->write_pixel_hline = sgl_write_pixel_hline_32bpp;
             break;
     }
     pixel_num = buffer_size / pixel_size;

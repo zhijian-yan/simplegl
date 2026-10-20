@@ -105,9 +105,9 @@ static int sgl_bitmap_prepare(const sgl_display_t *disp, sgl_dir_t dir,
     return 0;
 }
 
-void sgl_draw_bitmap_1b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
-                        int32_t h, const uint8_t *bitmap, sgl_dir_t dir,
-                        uint32_t color) {
+void sgl_draw_bitmap_1bpp(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
+                          int32_t h, const uint8_t *bitmap, sgl_dir_t dir,
+                          uint32_t color) {
     int32_t row, col, row_dir, col_dir, walk_x, index, i, j, bmp_w = w;
     uint32_t mask;
     sgl_write_pixel_t write_pixel = disp->write_pixel;
@@ -140,138 +140,25 @@ void sgl_draw_bitmap_1b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
     }
 }
 
-void sgl_draw_bitmap_8b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
-                        int32_t h, const uint8_t *bitmap, sgl_dir_t dir) {
-    const uint8_t *src;
-    int32_t row, col, row_dir, col_dir, walk_x, src_step, src_row, i, j;
-    int32_t bmp_w = w;
-    sgl_write_pixel_t write_pixel = disp->write_pixel;
-    sgl_framebuffer_t *fb = &disp->fb;
-    if (sgl_bitmap_prepare(disp, dir, &x, &y, &w, &h, &row, &col, &row_dir,
-                           &col_dir, &walk_x))
+void sgl_draw_bitmap(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
+                     int32_t h, const uint8_t *bitmap) {
+    sgl_logical_offset(x, y);
+    sgl_rect_t bmp = {x, y, w, h};
+    if (sgl_clip_rect(&disp->clip_area, &x, &y, &w, &h))
         return;
-    src = bitmap + row * bmp_w + col;
-    src_step = col_dir;
-    src_row = row_dir * bmp_w;
-    if (walk_x) {
-        for (i = 0; i < h; ++i) {
-            const uint8_t *p = src;
-            for (j = 0; j < w; ++j, p += src_step) {
-                write_pixel(fb, x + j, y, *p);
-            }
-            src += src_row;
-            ++y;
-        }
-    } else {
-        for (i = 0; i < h; ++i) {
-            const uint8_t *p = src;
-            for (j = 0; j < w; ++j, p += src_step) {
-                write_pixel(fb, x, y + j, *p);
-            }
-            src += src_row;
-            ++x;
-        }
-    }
-}
-
-void sgl_draw_bitmap_16b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
-                         int32_t h, const uint16_t *bitmap, sgl_dir_t dir) {
-    const uint8_t *src;
-    int32_t row, col, row_dir, col_dir, walk_x, src_step, src_row, i, j;
-    int32_t bmp_w = w;
-    sgl_write_pixel_t write_pixel = disp->write_pixel;
     sgl_framebuffer_t *fb = &disp->fb;
-    if (sgl_bitmap_prepare(disp, dir, &x, &y, &w, &h, &row, &col, &row_dir,
-                           &col_dir, &walk_x))
-        return;
-    src = (const uint8_t *)(bitmap + row * bmp_w + col);
-    src_step = col_dir * 2;
-    src_row = row_dir * bmp_w * 2;
-    if (walk_x) {
-        for (i = 0; i < h; ++i) {
-            const uint8_t *p = src;
-            for (j = 0; j < w; ++j, p += src_step) {
-                write_pixel(fb, x + j, y, *(const uint16_t *)p);
-            }
-            src += src_row;
-            ++y;
-        }
-    } else {
-        for (i = 0; i < h; ++i) {
-            const uint8_t *p = src;
-            for (j = 0; j < w; ++j, p += src_step) {
-                write_pixel(fb, x, y + j, *(const uint16_t *)p);
-            }
-            src += src_row;
-            ++x;
-        }
-    }
-}
-
-void sgl_draw_bitmap_24b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
-                         int32_t h, const uint8_t *bitmap, sgl_dir_t dir) {
-    const uint8_t *src;
-    int32_t row, col, row_dir, col_dir, walk_x, src_step, src_row, i, j;
-    int32_t bmp_w = w;
-    sgl_write_pixel_t write_pixel = disp->write_pixel;
-    sgl_framebuffer_t *fb = &disp->fb;
-    if (sgl_bitmap_prepare(disp, dir, &x, &y, &w, &h, &row, &col, &row_dir,
-                           &col_dir, &walk_x))
-        return;
-    src = bitmap + (row * bmp_w + col) * 3;
-    src_step = col_dir * 3;
-    src_row = row_dir * bmp_w * 3;
-    if (walk_x) {
-        for (i = 0; i < h; ++i) {
-            const uint8_t *p = src;
-            for (j = 0; j < w; ++j, p += src_step) {
-                write_pixel(fb, x + j, y, *(const uint32_t *)p | 0xFF000000);
-            }
-            src += src_row;
-            ++y;
-        }
-    } else {
-        for (i = 0; i < h; ++i) {
-            const uint8_t *p = src;
-            for (j = 0; j < w; ++j, p += src_step) {
-                write_pixel(fb, x, y + j, *(const uint32_t *)p | 0xFF000000);
-            }
-            src += src_row;
-            ++x;
-        }
-    }
-}
-
-void sgl_draw_bitmap_32b(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
-                         int32_t h, const uint32_t *bitmap, sgl_dir_t dir) {
-    const uint8_t *src;
-    int32_t row, col, row_dir, col_dir, walk_x, src_step, src_row, i, j;
-    int32_t bmp_w = w;
-    sgl_write_pixel_t write_pixel = disp->write_pixel;
-    sgl_framebuffer_t *fb = &disp->fb;
-    if (sgl_bitmap_prepare(disp, dir, &x, &y, &w, &h, &row, &col, &row_dir,
-                           &col_dir, &walk_x))
-        return;
-    src = (const uint8_t *)(bitmap + row * bmp_w + col);
-    src_step = col_dir * 4;
-    src_row = row_dir * bmp_w * 4;
-    if (walk_x) {
-        for (i = 0; i < h; ++i) {
-            const uint8_t *p = src;
-            for (j = 0; j < w; ++j, p += src_step) {
-                write_pixel(fb, x + j, y, *(const uint32_t *)p);
-            }
-            src += src_row;
-            ++y;
-        }
-    } else {
-        for (i = 0; i < h; ++i) {
-            const uint8_t *p = src;
-            for (j = 0; j < w; ++j, p += src_step) {
-                write_pixel(fb, x, y + j, *(const uint32_t *)p);
-            }
-            src += src_row;
-            ++x;
-        }
+    int32_t pixel_size = fb->pixel_size;
+    int32_t copy_size = w * pixel_size;
+    int32_t src_stride = bmp.w * pixel_size;
+    int32_t des_stride = fb->dirty_width * pixel_size;
+    const uint8_t *src =
+        bitmap + ((x - bmp.x) + (y - bmp.y) * bmp.w) * pixel_size;
+    sgl_buffer_offset(x, y);
+    uint8_t *des = (uint8_t *)disp->fb.buffer +
+                   (x + (y >> fb->pixel_index) * fb->dirty_width) * pixel_size;
+    for (int32_t i = 0; i < h; ++i) {
+        memcpy(des, src, (size_t)copy_size);
+        src += src_stride;
+        des += des_stride;
     }
 }
