@@ -2,7 +2,6 @@
 // Copyright (c) 2025-2026 Zhijian Yan
 
 #include "sgl_display.h"
-#include "core/sgl_core.h"
 #include "draw/sgl_common.h"
 #include "sgl_pixel.h"
 
@@ -23,7 +22,6 @@ int sgl_display_init(sgl_display_t *disp, const sgl_display_config_t *config) {
     sgl_widget_init(&disp->root, &disp->background, 0, 0, config->hor_res,
                     config->ver_res, NULL);
     disp->root.disp = disp;
-    sgl_set_display_rotation(disp, config->rotate);
     return 0;
 }
 
@@ -84,7 +82,6 @@ void sgl_clear_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
     if (sgl_clip_rect(&disp->clip_area, &x, &y, &w, &h))
         return;
     sgl_normalize_rect(&x, &y, &w, &h);
-    sgl_rotate_rect_ccw(disp, &x, &y, &w, &h);
     sgl_buffer_offset(x, y);
     sgl_framebuffer_t *fb = &disp->fb;
     int32_t rect_width_size = w * fb->pixel_size;

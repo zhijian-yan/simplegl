@@ -12,7 +12,6 @@ void sgl_draw_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
         if (sgl_clip_rect(&disp->clip_area, &x, &y, &w, &h))
             return;
         sgl_normalize_rect(&x, &y, &w, &h);
-        sgl_rotate_rect_ccw(disp, &x, &y, &w, &h);
         sgl_buffer_offset(x, y);
         sgl_write_rect(disp, x, y, w, h, color);
     } else {

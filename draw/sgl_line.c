@@ -8,7 +8,6 @@ void sgl_draw_point(sgl_display_t *disp, int32_t x, int32_t y, uint32_t color) {
     sgl_logical_offset(x, y);
     if (!sgl_area_is_intersect(&disp->clip_area, x, y, x, y))
         return;
-    sgl_rotate_point_ccw(disp, &x, &y);
     sgl_buffer_offset(x, y);
     disp->write_pixel(&disp->fb, x, y, color);
 }
@@ -20,22 +19,8 @@ void sgl_draw_hline(sgl_display_t *disp, int32_t x, int32_t y, int32_t len,
         return;
     if (sgl_clip_line(&x, &len, disp->clip_area.left, disp->clip_area.right))
         return;
-    sgl_rotate_point_ccw(disp, &x, &y);
     sgl_buffer_offset(x, y);
-    switch (disp->rotate) {
-        case SGL_ROTATE_0:
-            sgl_write_hpixel(disp, x, y, len, color);
-            break;
-        case SGL_ROTATE_90:
-            sgl_write_vpixel(disp, x, y, len, color);
-            break;
-        case SGL_ROTATE_180:
-            sgl_write_hpixel(disp, x, y, -len, color);
-            break;
-        case SGL_ROTATE_270:
-            sgl_write_vpixel(disp, x, y, -len, color);
-            break;
-    }
+    sgl_write_hpixel(disp, x, y, len, color);
 }
 
 void sgl_draw_vline(sgl_display_t *disp, int32_t x, int32_t y, int32_t len,
@@ -45,22 +30,8 @@ void sgl_draw_vline(sgl_display_t *disp, int32_t x, int32_t y, int32_t len,
         return;
     if (sgl_clip_line(&y, &len, disp->clip_area.top, disp->clip_area.bottom))
         return;
-    sgl_rotate_point_ccw(disp, &x, &y);
     sgl_buffer_offset(x, y);
-    switch (disp->rotate) {
-        case SGL_ROTATE_0:
-            sgl_write_vpixel(disp, x, y, len, color);
-            break;
-        case SGL_ROTATE_90:
-            sgl_write_hpixel(disp, x, y, -len, color);
-            break;
-        case SGL_ROTATE_180:
-            sgl_write_vpixel(disp, x, y, -len, color);
-            break;
-        case SGL_ROTATE_270:
-            sgl_write_hpixel(disp, x, y, len, color);
-            break;
-    }
+    sgl_write_vpixel(disp, x, y, len, color);
 }
 
 void sgl_draw_line(sgl_display_t *disp, int32_t x0, int32_t y0, int32_t x1,

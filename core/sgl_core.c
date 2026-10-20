@@ -10,7 +10,7 @@
 #define SGL_SLICE_STATE_RUNNING 2
 
 static void sgl_buffer_slice(sgl_display_t *disp, sgl_slice_t *slice,
-                             sgl_area_t *flush_area, sgl_rect_t dirty_rect) {
+                             sgl_rect_t dirty_rect) {
     if (slice->slice_state == SGL_SLICE_STATE_IDLE) {
         slice->slice_state = SGL_SLICE_STATE_START;
     }
@@ -20,8 +20,6 @@ static void sgl_buffer_slice(sgl_display_t *disp, sgl_slice_t *slice,
         if (disp->frame_start)
             disp->frame_start(disp->user_data);
         slice->frame_rect = dirty_rect;
-        sgl_rotate_rect_ccw(disp, &slice->frame_rect.x, &slice->frame_rect.y,
-                            &slice->frame_rect.w, &slice->frame_rect.h);
         slice->slice_count = 0;
         slice->slice_state = SGL_SLICE_STATE_RUNNING;
     }
@@ -36,13 +34,9 @@ static void sgl_buffer_slice(sgl_display_t *disp, sgl_slice_t *slice,
             h_piece = slice->frame_rect.h - slice->slice_count;
         disp->fb.dirty_width = w_piece;
         slice->slice_count += h_piece;
-        sgl_set_area(flush_area, disp->buffer_ox, disp->buffer_oy,
+        sgl_set_area(&slice->slice_area, disp->buffer_ox, disp->buffer_oy,
                      disp->buffer_ox + w_piece - 1,
                      disp->buffer_oy + h_piece - 1);
-        slice->slice_area = *flush_area;
-        sgl_rotate_area_cw(disp, &slice->slice_area.left,
-                           &slice->slice_area.top, &slice->slice_area.right,
-                           &slice->slice_area.bottom);
         if (slice->slice_count == slice->frame_rect.h) {
             slice->slice_state = SGL_SLICE_STATE_IDLE;
         }
@@ -72,7 +66,8 @@ int sgl_draw(sgl_display_t *disp, sgl_area_t *flush_area) {
     sgl_widget_t *invalidate_widget = &disp->root;
     sgl_rect_t dirty_rect = invalidate_widget->rect;
     int32_t ox, oy;
-    sgl_buffer_slice(disp, &disp->slice, flush_area, dirty_rect);
+    sgl_buffer_slice(disp, &disp->slice, dirty_rect);
+    *flush_area = disp->slice.slice_area;
     sgl_widget_get_origin_coords(invalidate_widget, &ox, &oy);
     sgl_draw_proc(disp, invalidate_widget, ox, oy, &disp->slice.slice_area);
     if (disp->slice.slice_state == SGL_SLICE_STATE_IDLE) {

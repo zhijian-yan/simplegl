@@ -8,7 +8,7 @@ static void sgl_rotate_bitmap(const sgl_display_t *disp, int32_t *x, int32_t *y,
                               int32_t *dx, int32_t *dy, int32_t w, int32_t h,
                               int32_t bmp_w, int32_t bmp_h, sgl_dir_t *dir) {
     int32_t temp;
-    sgl_rotate_point_ccw(disp, x, y);
+    // sgl_rotate_point_ccw(disp, x, y);
     temp = *dx;
     switch (disp->rotate) {
         case SGL_ROTATE_0:

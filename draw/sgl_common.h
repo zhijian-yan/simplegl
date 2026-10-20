@@ -193,165 +193,168 @@ static inline int sgl_clip_rect(const sgl_area_t *bounds, int32_t *x,
     return 0;
 }
 
-static inline void sgl_rotate_point_ccw(const sgl_display_t *disp, int32_t *x,
-                                        int32_t *y) {
-    int32_t temp = *x;
-    switch (disp->rotate) {
-        case SGL_ROTATE_0:
-            break;
-        case SGL_ROTATE_90:
-            *x = disp->max_y - *y;
-            *y = temp;
-            break;
-        case SGL_ROTATE_180:
-            *x = disp->max_x - *x;
-            *y = disp->max_y - *y;
-            break;
-        case SGL_ROTATE_270:
-            *x = *y;
-            *y = disp->max_x - temp;
-            break;
-    }
-}
+// static inline void sgl_rotate_point_ccw(const sgl_display_t *disp, int32_t
+// *x,
+//                                         int32_t *y) {
+//     int32_t temp = *x;
+//     switch (disp->rotate) {
+//         case SGL_ROTATE_0:
+//             break;
+//         case SGL_ROTATE_90:
+//             *x = disp->max_y - *y;
+//             *y = temp;
+//             break;
+//         case SGL_ROTATE_180:
+//             *x = disp->max_x - *x;
+//             *y = disp->max_y - *y;
+//             break;
+//         case SGL_ROTATE_270:
+//             *x = *y;
+//             *y = disp->max_x - temp;
+//             break;
+//     }
+// }
 
-static inline void sgl_rotate_point_cw(const sgl_display_t *disp, int32_t *x,
-                                       int32_t *y) {
-    int32_t temp = *x;
-    switch (disp->rotate) {
-        case SGL_ROTATE_0:
-            break;
-        case SGL_ROTATE_90:
-            *x = *y;
-            *y = disp->max_y - temp;
-            break;
-        case SGL_ROTATE_180:
-            *x = disp->max_x - *x;
-            *y = disp->max_y - *y;
-            break;
-        case SGL_ROTATE_270:
-            *x = disp->max_x - *y;
-            *y = temp;
-            break;
-    }
-}
+// static inline void sgl_rotate_point_cw(const sgl_display_t *disp, int32_t *x,
+//                                        int32_t *y) {
+//     int32_t temp = *x;
+//     switch (disp->rotate) {
+//         case SGL_ROTATE_0:
+//             break;
+//         case SGL_ROTATE_90:
+//             *x = *y;
+//             *y = disp->max_y - temp;
+//             break;
+//         case SGL_ROTATE_180:
+//             *x = disp->max_x - *x;
+//             *y = disp->max_y - *y;
+//             break;
+//         case SGL_ROTATE_270:
+//             *x = disp->max_x - *y;
+//             *y = temp;
+//             break;
+//     }
+// }
 
-static inline void sgl_rotate_rect_ccw(const sgl_display_t *disp, int32_t *x,
-                                       int32_t *y, int32_t *w, int32_t *h) {
-    int32_t temp_x = *x;
-    int32_t temp_y = *y;
-    int32_t temp_w = *w;
-    int32_t temp_h = *h;
-    switch (disp->rotate) {
-        case SGL_ROTATE_0:
-            break;
-        case SGL_ROTATE_90:
-            *x = disp->max_y - temp_y - temp_h + 1;
-            *y = temp_x;
-            *w = temp_h;
-            *h = temp_w;
-            break;
-        case SGL_ROTATE_180:
-            *x = disp->max_x - temp_x - temp_w + 1;
-            *y = disp->max_y - temp_y - temp_h + 1;
-            break;
-        case SGL_ROTATE_270:
-            *x = temp_y;
-            *y = disp->max_x - temp_x - temp_w + 1;
-            *w = temp_h;
-            *h = temp_w;
-            break;
-    }
-}
+// static inline void sgl_rotate_rect_ccw(const sgl_display_t *disp, int32_t *x,
+//                                        int32_t *y, int32_t *w, int32_t *h) {
+//     int32_t temp_x = *x;
+//     int32_t temp_y = *y;
+//     int32_t temp_w = *w;
+//     int32_t temp_h = *h;
+//     switch (disp->rotate) {
+//         case SGL_ROTATE_0:
+//             break;
+//         case SGL_ROTATE_90:
+//             *x = disp->max_y - temp_y - temp_h + 1;
+//             *y = temp_x;
+//             *w = temp_h;
+//             *h = temp_w;
+//             break;
+//         case SGL_ROTATE_180:
+//             *x = disp->max_x - temp_x - temp_w + 1;
+//             *y = disp->max_y - temp_y - temp_h + 1;
+//             break;
+//         case SGL_ROTATE_270:
+//             *x = temp_y;
+//             *y = disp->max_x - temp_x - temp_w + 1;
+//             *w = temp_h;
+//             *h = temp_w;
+//             break;
+//     }
+// }
 
-static inline void sgl_rotate_rect_cw(const sgl_display_t *disp, int32_t *x,
-                                      int32_t *y, int32_t *w, int32_t *h) {
-    int32_t temp_x = *x;
-    int32_t temp_y = *y;
-    int32_t temp_w = *w;
-    int32_t temp_h = *h;
-    switch (disp->rotate) {
-        case SGL_ROTATE_0:
-            break;
-        case SGL_ROTATE_90:
-            *x = temp_y;
-            *y = disp->max_y - temp_x - temp_w + 1;
-            *w = temp_h;
-            *h = temp_w;
-            break;
-        case SGL_ROTATE_180:
-            *x = disp->max_x - temp_x - temp_w + 1;
-            *y = disp->max_y - temp_y - temp_h + 1;
-            break;
-        case SGL_ROTATE_270:
-            *x = disp->max_x - temp_y - temp_h + 1;
-            *y = temp_x;
-            *w = temp_h;
-            *h = temp_w;
-            break;
-    }
-}
+// static inline void sgl_rotate_rect_cw(const sgl_display_t *disp, int32_t *x,
+//                                       int32_t *y, int32_t *w, int32_t *h) {
+//     int32_t temp_x = *x;
+//     int32_t temp_y = *y;
+//     int32_t temp_w = *w;
+//     int32_t temp_h = *h;
+//     switch (disp->rotate) {
+//         case SGL_ROTATE_0:
+//             break;
+//         case SGL_ROTATE_90:
+//             *x = temp_y;
+//             *y = disp->max_y - temp_x - temp_w + 1;
+//             *w = temp_h;
+//             *h = temp_w;
+//             break;
+//         case SGL_ROTATE_180:
+//             *x = disp->max_x - temp_x - temp_w + 1;
+//             *y = disp->max_y - temp_y - temp_h + 1;
+//             break;
+//         case SGL_ROTATE_270:
+//             *x = disp->max_x - temp_y - temp_h + 1;
+//             *y = temp_x;
+//             *w = temp_h;
+//             *h = temp_w;
+//             break;
+//     }
+// }
 
-static inline void sgl_rotate_area_ccw(const sgl_display_t *disp, int32_t *left,
-                                       int32_t *top, int32_t *right,
-                                       int32_t *bottom) {
-    int32_t temp_left = *left;
-    int32_t temp_top = *top;
-    int32_t temp_right = *right;
-    int32_t temp_bottom = *bottom;
-    switch (disp->rotate) {
-        case SGL_ROTATE_0:
-            break;
-        case SGL_ROTATE_90:
-            *left = disp->max_y - temp_bottom;
-            *top = temp_left;
-            *right = disp->max_y - temp_top;
-            *bottom = temp_right;
-            break;
-        case SGL_ROTATE_180:
-            *left = disp->max_x - temp_right;
-            *top = disp->max_y - temp_bottom;
-            *right = disp->max_x - temp_left;
-            *bottom = disp->max_y - temp_top;
-            break;
-        case SGL_ROTATE_270:
-            *left = temp_top;
-            *top = disp->max_x - temp_right;
-            *right = temp_bottom;
-            *bottom = disp->max_x - temp_left;
-            break;
-    }
-}
+// static inline void sgl_rotate_area_ccw(const sgl_display_t *disp, int32_t
+// *left,
+//                                        int32_t *top, int32_t *right,
+//                                        int32_t *bottom) {
+//     int32_t temp_left = *left;
+//     int32_t temp_top = *top;
+//     int32_t temp_right = *right;
+//     int32_t temp_bottom = *bottom;
+//     switch (disp->rotate) {
+//         case SGL_ROTATE_0:
+//             break;
+//         case SGL_ROTATE_90:
+//             *left = disp->max_y - temp_bottom;
+//             *top = temp_left;
+//             *right = disp->max_y - temp_top;
+//             *bottom = temp_right;
+//             break;
+//         case SGL_ROTATE_180:
+//             *left = disp->max_x - temp_right;
+//             *top = disp->max_y - temp_bottom;
+//             *right = disp->max_x - temp_left;
+//             *bottom = disp->max_y - temp_top;
+//             break;
+//         case SGL_ROTATE_270:
+//             *left = temp_top;
+//             *top = disp->max_x - temp_right;
+//             *right = temp_bottom;
+//             *bottom = disp->max_x - temp_left;
+//             break;
+//     }
+// }
 
-static inline void sgl_rotate_area_cw(const sgl_display_t *disp, int32_t *left,
-                                      int32_t *top, int32_t *right,
-                                      int32_t *bottom) {
-    int32_t temp_left = *left;
-    int32_t temp_top = *top;
-    int32_t temp_right = *right;
-    int32_t temp_bottom = *bottom;
-    switch (disp->rotate) {
-        case SGL_ROTATE_0:
-            break;
-        case SGL_ROTATE_90:
-            *left = temp_top;
-            *top = disp->max_y - temp_right;
-            *right = temp_bottom;
-            *bottom = disp->max_y - temp_left;
-            break;
-        case SGL_ROTATE_180:
-            *left = disp->max_x - temp_right;
-            *top = disp->max_y - temp_bottom;
-            *right = disp->max_x - temp_left;
-            *bottom = disp->max_y - temp_top;
-            break;
-        case SGL_ROTATE_270:
-            *left = disp->max_x - temp_bottom;
-            *top = temp_left;
-            *right = disp->max_x - temp_top;
-            *bottom = temp_right;
-            break;
-    }
-}
+// static inline void sgl_rotate_area_cw(const sgl_display_t *disp, int32_t
+// *left,
+//                                       int32_t *top, int32_t *right,
+//                                       int32_t *bottom) {
+//     int32_t temp_left = *left;
+//     int32_t temp_top = *top;
+//     int32_t temp_right = *right;
+//     int32_t temp_bottom = *bottom;
+//     switch (disp->rotate) {
+//         case SGL_ROTATE_0:
+//             break;
+//         case SGL_ROTATE_90:
+//             *left = temp_top;
+//             *top = disp->max_y - temp_right;
+//             *right = temp_bottom;
+//             *bottom = disp->max_y - temp_left;
+//             break;
+//         case SGL_ROTATE_180:
+//             *left = disp->max_x - temp_right;
+//             *top = disp->max_y - temp_bottom;
+//             *right = disp->max_x - temp_left;
+//             *bottom = disp->max_y - temp_top;
+//             break;
+//         case SGL_ROTATE_270:
+//             *left = disp->max_x - temp_bottom;
+//             *top = temp_left;
+//             *right = disp->max_x - temp_top;
+//             *bottom = temp_right;
+//             break;
+//     }
+// }
 
 void sgl_draw_circle_section(sgl_display_t *disp, int32_t xc, int32_t yc,
                              int32_t r, int32_t offset_x, int32_t offset_y,
