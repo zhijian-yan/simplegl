@@ -5,6 +5,13 @@
 #include "sgl_common.h"
 #include "sgl_line.h"
 
+void sgl_draw_circle_section(sgl_display_t *disp, int32_t xc, int32_t yc,
+                             int32_t r, int32_t offset_x, int32_t offset_y,
+                             uint32_t color);
+void sgl_draw_filled_circle_section(sgl_display_t *disp, int32_t xc, int32_t yc,
+                                    int32_t r, int32_t offset_x,
+                                    int32_t offset_y, uint32_t color);
+
 void sgl_draw_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
                    int32_t h, int is_filled, uint32_t color) {
     sgl_normalize_rect(&x, &y, &w, &h);
@@ -24,8 +31,8 @@ void sgl_draw_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
 
 void sgl_draw_round_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
                          int32_t h, int32_t r, int is_filled, uint32_t color) {
-    int32_t mw, mh;
     sgl_normalize_rect(&x, &y, &w, &h);
+    int32_t iw, ih;
     if (w <= 2 || h <= 2) {
         if (w > h) {
             for (h += y; y < h; ++y)
@@ -36,27 +43,27 @@ void sgl_draw_round_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
         }
         return;
     }
-    mw = w >> 1;
-    mh = h >> 1;
+    iw = w >> 1;
+    ih = h >> 1;
     if (r < 0)
         r = -r;
-    if (r > mw)
-        r = mw;
-    if (r > mh)
-        r = mh;
-    mw = w - (r << 1);
-    mh = h - (r << 1);
+    if (r > iw)
+        r = iw;
+    if (r > ih)
+        r = ih;
+    iw = w - (r << 1);
+    ih = h - (r << 1);
     if (is_filled == 0) {
-        sgl_draw_hline(disp, x + r, y, mw, color);
-        sgl_draw_hline(disp, x + r, y + h - 1, mw, color);
-        sgl_draw_vline(disp, x, y + r, mh, color);
-        sgl_draw_vline(disp, x + w - 1, y + r, mh, color);
-        sgl_draw_circle_section(disp, x + r, y + r, r, mw - 1, mh - 1, color);
+        sgl_draw_hline(disp, x + r, y, iw, color);
+        sgl_draw_hline(disp, x + r, y + h - 1, iw, color);
+        sgl_draw_vline(disp, x, y + r, ih, color);
+        sgl_draw_vline(disp, x + w - 1, y + r, ih, color);
+        sgl_draw_circle_section(disp, x + r, y + r, r, iw - 1, ih - 1, color);
     } else {
-        sgl_draw_rect(disp, x + r, y, mw, h, 1, color);
-        sgl_draw_rect(disp, x, y + r, r, mh, 1, color);
-        sgl_draw_rect(disp, x + w - r, y + r, r, mh, 1, color);
-        sgl_draw_filled_circle_section(disp, x + r, y + r, r, mw - 1, mh - 1,
+        sgl_draw_rect(disp, x + r, y, iw, h, 1, color);
+        sgl_draw_rect(disp, x, y + r, r, ih, 1, color);
+        sgl_draw_rect(disp, x + w - r, y + r, r, ih, 1, color);
+        sgl_draw_filled_circle_section(disp, x + r, y + r, r, iw - 1, ih - 1,
                                        color);
     }
 }

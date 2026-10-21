@@ -17,6 +17,7 @@ void sgl_draw_hline(sgl_display_t *disp, int32_t x, int32_t y, int32_t len,
     sgl_logical_offset(x, y);
     if (y < disp->clip_area.top || y > disp->clip_area.bottom)
         return;
+    sgl_normalize_line(&x, &len);
     if (sgl_clip_line(&x, &len, disp->clip_area.left, disp->clip_area.right))
         return;
     sgl_buffer_offset(x, y);
@@ -28,6 +29,7 @@ void sgl_draw_vline(sgl_display_t *disp, int32_t x, int32_t y, int32_t len,
     sgl_logical_offset(x, y);
     if (x < disp->clip_area.left || x > disp->clip_area.right)
         return;
+    sgl_normalize_line(&y, &len);
     if (sgl_clip_line(&y, &len, disp->clip_area.top, disp->clip_area.bottom))
         return;
     sgl_buffer_offset(x, y);
