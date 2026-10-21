@@ -20,7 +20,7 @@ void sgl_show_string(sgl_display_t *disp, int32_t x, int32_t y, const char *str,
             for (i = 0; i < length; ++i)
                 sgl_draw_bitmap_1bpp(
                     disp, x + i * fontwidth, y, fontwidth, fontheight,
-                    &sgl_builtin_fixedsys_8x16[(str[i] - ' ') * fontsize], dir,
+                    &sgl_builtin_fixedsys_8x16[(str[i] - ' ') * fontsize],
                     color);
             break;
         case SGL_DIR_RIGHT:
@@ -28,7 +28,7 @@ void sgl_show_string(sgl_display_t *disp, int32_t x, int32_t y, const char *str,
             for (i = 0; i < length; ++i)
                 sgl_draw_bitmap_1bpp(
                     disp, x, y + i * fontwidth, fontwidth, fontheight,
-                    &sgl_builtin_fixedsys_8x16[(str[i] - ' ') * fontsize], dir,
+                    &sgl_builtin_fixedsys_8x16[(str[i] - ' ') * fontsize],
                     color);
             break;
         case SGL_DIR_LEFT:
@@ -37,7 +37,7 @@ void sgl_show_string(sgl_display_t *disp, int32_t x, int32_t y, const char *str,
             for (i = 0; i < length; ++i)
                 sgl_draw_bitmap_1bpp(
                     disp, x, y - i * fontwidth, fontwidth, fontheight,
-                    &sgl_builtin_fixedsys_8x16[(str[i] - ' ') * fontsize], dir,
+                    &sgl_builtin_fixedsys_8x16[(str[i] - ' ') * fontsize],
                     color);
             break;
         case SGL_DIR_DOWN:
@@ -46,7 +46,7 @@ void sgl_show_string(sgl_display_t *disp, int32_t x, int32_t y, const char *str,
             for (i = 0; i < length; ++i)
                 sgl_draw_bitmap_1bpp(
                     disp, x - i * fontwidth, y, fontwidth, fontheight,
-                    &sgl_builtin_fixedsys_8x16[(str[i] - ' ') * fontsize], dir,
+                    &sgl_builtin_fixedsys_8x16[(str[i] - ' ') * fontsize],
                     color);
             break;
     }
