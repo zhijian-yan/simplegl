@@ -20,14 +20,16 @@ typedef enum {
 } sgl_pixel_format_t;
 
 typedef struct {
-    void *buffer;
+    void *framebuffer;
     int32_t buffer_size;
+    void *dirty_buffer;
+    uint8_t dirty_num;
     int32_t hor_res;
     int32_t ver_res;
-    void *user_data;
     sgl_pixel_format_t pixel_format;
     void (*frame_start)(void *user_data);
     void (*frame_end)(void *user_data);
+    void *user_data;
 } sgl_display_config_t;
 
 typedef struct {
@@ -46,6 +48,13 @@ typedef struct {
     int32_t slice_state;
 } sgl_slice_t;
 
+typedef struct {
+    sgl_area_t *dirty_buffer;
+    uint8_t dirty_count;
+    uint8_t dirty_num;
+    uint8_t flag_full_screen;
+} sgl_dirty_t;
+
 typedef void (*sgl_write_pixel_t)(sgl_framebuffer_t *fb, int32_t x, int32_t y,
                                   uint32_t format_color);
 
@@ -56,6 +65,7 @@ typedef void (*sgl_write_pixel_hline_t)(sgl_framebuffer_t *fb, int32_t x,
 typedef struct sgl_display {
     sgl_framebuffer_t fb;
     sgl_slice_t slice;
+    sgl_dirty_t dirty;
     int32_t hor_res;
     int32_t ver_res;
     int32_t logical_ox;
@@ -67,11 +77,11 @@ typedef struct sgl_display {
     int32_t frame_count;
     sgl_widget_t root;
     sgl_widget_class_t background;
-    void *user_data;
     sgl_write_pixel_t write_pixel;
     sgl_write_pixel_hline_t write_pixel_hline;
     void (*frame_start)(void *user_data);
     void (*frame_end)(void *user_data);
+    void *user_data;
 } sgl_display_t;
 
 int sgl_display_init(sgl_display_t *disp, const sgl_display_config_t *config);

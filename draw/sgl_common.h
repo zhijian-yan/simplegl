@@ -65,46 +65,22 @@ static inline void sgl_rect2area(const sgl_rect_t *rect, sgl_area_t *area) {
     }
 }
 
-static inline int sgl_area_is_intersect(const sgl_area_t *bounds, int32_t left,
-                                        int32_t top, int32_t right,
-                                        int32_t bottom) {
-    if (left > bounds->right || right < bounds->left || top > bounds->bottom ||
+static inline int sgl_area_intersects(const sgl_area_t *bounds, int32_t left,
+                                      int32_t top, int32_t right,
+                                      int32_t bottom) {
+    if (left > bounds->right || top > bounds->bottom || right < bounds->left ||
         bottom < bounds->top)
         return 0;
     return 1;
 }
 
-static inline int sgl_area_get_intersect(const sgl_area_t *a,
-                                         const sgl_area_t *b, sgl_area_t *out) {
-    int32_t left = (a->left > b->left) ? a->left : b->left;
-    int32_t top = (a->top > b->top) ? a->top : b->top;
-    int32_t right = (a->right < b->right) ? a->right : b->right;
-    int32_t bottom = (a->bottom < b->bottom) ? a->bottom : b->bottom;
-    if (left > right || top > bottom)
-        return -1;
-    out->left = left;
-    out->top = top;
-    out->right = right;
-    out->bottom = bottom;
-    return 0;
-}
-
-static inline int sgl_set_area_within(sgl_area_t *out, const sgl_area_t *bounds,
-                                      int32_t left, int32_t top, int32_t right,
-                                      int32_t bottom) {
-    sgl_area_t in;
-    sgl_set_area(&in, left, top, right, bottom);
-    return sgl_area_get_intersect(&in, bounds, out);
-}
-
-static inline sgl_area_t sgl_area_get_union(const sgl_area_t *a,
-                                            const sgl_area_t *b) {
-    sgl_area_t union_area;
-    union_area.left = (a->left < b->left) ? a->left : b->left;
-    union_area.top = (a->top < b->top) ? a->top : b->top;
-    union_area.right = (a->right > b->right) ? a->right : b->right;
-    union_area.bottom = (a->bottom > b->bottom) ? a->bottom : b->bottom;
-    return union_area;
+static inline int sgl_area_contains(const sgl_area_t *bounds, int32_t left,
+                                    int32_t top, int32_t right,
+                                    int32_t bottom) {
+    if (left > bounds->left && top > bounds->top && right < bounds->right &&
+        bottom < bounds->bottom)
+        return 0;
+    return 1;
 }
 
 static inline void sgl_write_hpixel(sgl_display_t *disp, int32_t x, int32_t y,

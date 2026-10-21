@@ -9,10 +9,12 @@ static int sgl_set_pixel_format(sgl_display_t *disp, int32_t buffer_size,
                                 sgl_pixel_format_t pixel_format);
 
 int sgl_display_init(sgl_display_t *disp, const sgl_display_config_t *config) {
-    if (!disp || !config || !config->buffer)
+    if (!disp || !config || !config->framebuffer)
         return -1;
     memset(disp, 0, sizeof(sgl_display_t));
-    disp->fb.buffer = config->buffer;
+    disp->fb.buffer = config->framebuffer;
+    disp->dirty.dirty_buffer = config->dirty_buffer;
+    disp->dirty.dirty_num = config->dirty_num;
     disp->hor_res = config->hor_res;
     disp->ver_res = config->ver_res;
     disp->frame_start = config->frame_start;

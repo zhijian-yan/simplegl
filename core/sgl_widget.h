@@ -38,26 +38,11 @@ int sgl_widget_add(sgl_widget_t *widget, sgl_widget_t *parent);
 int sgl_widget_remove(sgl_widget_t *widget);
 int sgl_widget_get_origin_coords(sgl_widget_t *widget, int32_t *ox,
                                  int32_t *oy);
-
-static inline void sgl_widget_set_coords(sgl_widget_t *widget, int32_t x,
-                                         int32_t y) {
-    widget->rect.x = x;
-    widget->rect.y = y;
-}
-
-static inline void sgl_widget_set_size(sgl_widget_t *widget, int32_t w,
-                                       int32_t h) {
-    widget->rect.w = w;
-    widget->rect.h = h;
-}
-
-static inline void sgl_widget_set_rect(sgl_widget_t *widget, int32_t x,
-                                       int32_t y, int32_t w, int32_t h) {
-    widget->rect.x = x;
-    widget->rect.y = y;
-    widget->rect.w = w;
-    widget->rect.h = h;
-}
+void sgl_widget_set_coords(sgl_widget_t *widget, int32_t x, int32_t y);
+void sgl_widget_set_size(sgl_widget_t *widget, int32_t w, int32_t h);
+void sgl_widget_set_rect(sgl_widget_t *widget, int32_t x, int32_t y, int32_t w,
+                         int32_t h);
+sgl_area_t sgl_widget_get_bounds(sgl_widget_t *widget);
 
 #ifdef __cplusplus
 }

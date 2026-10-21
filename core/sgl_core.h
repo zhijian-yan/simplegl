@@ -14,6 +14,8 @@ int sgl_draw(sgl_display_t *disp, sgl_area_t *flush_area);
 int sgl_set_clip_area(sgl_display_t *disp, int32_t left, int32_t top,
                       int32_t right, int32_t bottom);
 void sgl_reset_clip_area(sgl_display_t *disp);
+void sgl_invalidate_area(sgl_display_t *disp, int32_t left, int32_t top,
+                         int32_t right, int32_t bottom);
 
 #ifdef __cplusplus
 }
