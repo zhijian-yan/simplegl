@@ -53,15 +53,6 @@ typedef enum {
 
 #define SGL_ALIGN_DEFAULT SGL_ALIGN_UP_LEFT
 
-typedef enum {
-    SGL_ROTATE_0 = 0,
-    SGL_ROTATE_90,
-    SGL_ROTATE_180,
-    SGL_ROTATE_270,
-} sgl_rotate_t;
-
-#define SGL_ROTATE_DEFAULT SGL_ROTATE_0
-
 typedef struct {
     int32_t left;
     int32_t top;

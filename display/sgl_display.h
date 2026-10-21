@@ -22,7 +22,6 @@ typedef enum {
 typedef struct {
     void *buffer;
     int32_t buffer_size;
-    sgl_rotate_t rotate;
     int32_t hor_res;
     int32_t ver_res;
     void *user_data;
@@ -59,8 +58,6 @@ typedef struct sgl_display {
     sgl_slice_t slice;
     int32_t hor_res;
     int32_t ver_res;
-    int32_t max_x;
-    int32_t max_y;
     int32_t logical_ox;
     int32_t logical_oy;
     int32_t buffer_ox;
@@ -68,7 +65,6 @@ typedef struct sgl_display {
     sgl_area_t clip_area;
     sgl_area_t widget_bounds;
     int32_t frame_count;
-    sgl_rotate_t rotate;
     sgl_widget_t root;
     sgl_widget_class_t background;
     void *user_data;

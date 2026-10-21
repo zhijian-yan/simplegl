@@ -87,20 +87,3 @@ int sgl_set_clip_area(sgl_display_t *disp, int32_t left, int32_t top,
 void sgl_reset_clip_area(sgl_display_t *disp) {
     disp->clip_area = disp->widget_bounds;
 }
-
-void sgl_set_display_rotation(sgl_display_t *disp, sgl_rotate_t rotate) {
-    disp->rotate = rotate;
-    switch (rotate) {
-        case SGL_ROTATE_0:
-        case SGL_ROTATE_180:
-            disp->max_x = disp->hor_res - 1;
-            disp->max_y = disp->ver_res - 1;
-            break;
-        case SGL_ROTATE_90:
-        case SGL_ROTATE_270:
-            disp->max_x = disp->ver_res - 1;
-            disp->max_y = disp->hor_res - 1;
-            break;
-    }
-    sgl_set_rect(&disp->root.rect, 0, 0, disp->max_x + 1, disp->max_y + 1);
-}
