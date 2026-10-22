@@ -133,10 +133,11 @@ static inline void sgl_normalize_rect(int32_t *x, int32_t *y, int32_t *w,
 
 static inline int sgl_clip_line(int32_t *start, int32_t *len, int32_t min,
                                 int32_t max) {
-    int32_t end;
+    if (*len <= 0)
+        return -1;
     if (*start > max)
         return -1;
-    end = *start + *len - 1;
+    int32_t end = *start + *len - 1;
     if (end < min)
         return -1;
     if (*start < min)
