@@ -15,8 +15,6 @@ int sgl_display_init(sgl_display_t *disp, const sgl_display_config_t *config) {
     disp->fb.buffer = config->framebuffer;
     disp->dirty.dirty_buffer = config->dirty_buffer;
     disp->dirty.dirty_num = config->dirty_num;
-    disp->hor_res = config->hor_res;
-    disp->ver_res = config->ver_res;
     disp->frame_start = config->frame_start;
     disp->frame_end = config->frame_end;
     if (sgl_set_pixel_format(disp, config->buffer_size, config->pixel_format))
@@ -65,7 +63,7 @@ static int sgl_set_pixel_format(sgl_display_t *disp, int32_t buffer_size,
             break;
     }
     pixel_num = buffer_size / pixel_size;
-    if (buffer_size == 0 || pixel_num < disp->hor_res)
+    if (buffer_size == 0 || pixel_num < disp->root.rect.w)
         return -1;
     disp->fb.pixel_size = pixel_size;
     disp->fb.pixel_index = pixel_index;

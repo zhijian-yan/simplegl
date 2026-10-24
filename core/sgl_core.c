@@ -9,66 +9,93 @@
 #define SGL_SLICE_STATE_START   1
 #define SGL_SLICE_STATE_RUNNING 2
 
-static inline void sgl_area_get_intersect(sgl_area_t *intersect_area,
-                                          int32_t left, int32_t top,
-                                          int32_t right, int32_t bottom) {
-    if (intersect_area->left < left)
-        intersect_area->left = left;
-    if (intersect_area->top < top)
-        intersect_area->top = top;
-    if (intersect_area->right > right)
-        intersect_area->right = right;
-    if (intersect_area->bottom > bottom)
-        intersect_area->bottom = bottom;
+static inline void sgl_area_get_intersect(sgl_area_t *area, int32_t left,
+                                          int32_t top, int32_t right,
+                                          int32_t bottom) {
+    if (area->left < left)
+        area->left = left;
+    if (area->top < top)
+        area->top = top;
+    if (area->right > right)
+        area->right = right;
+    if (area->bottom > bottom)
+        area->bottom = bottom;
 }
 
-static inline void sgl_area_get_union(sgl_area_t *union_area, int32_t left,
+static inline void sgl_area_get_union(sgl_area_t *area, int32_t left,
                                       int32_t top, int32_t right,
                                       int32_t bottom) {
-    if (union_area->left > left)
-        union_area->left = left;
-    if (union_area->top > top)
-        union_area->top = top;
-    if (union_area->right < right)
-        union_area->right = right;
-    if (union_area->bottom < bottom)
-        union_area->bottom = bottom;
+    if (area->left > left)
+        area->left = left;
+    if (area->top > top)
+        area->top = top;
+    if (area->right < right)
+        area->right = right;
+    if (area->bottom < bottom)
+        area->bottom = bottom;
 }
 
-static inline int sgl_set_area_within(sgl_area_t *out, const sgl_area_t *bounds,
-                                      int32_t left, int32_t top, int32_t right,
-                                      int32_t bottom) {
-    if (!sgl_area_intersects(bounds, left, top, right, bottom))
+static inline int sgl_area_set_intersect(sgl_area_t *area, int32_t left,
+                                         int32_t top, int32_t right,
+                                         int32_t bottom) {
+    if (!sgl_area_intersects(area, left, top, right, bottom))
         return 0;
-    *out = *bounds;
-    sgl_area_get_intersect(out, left, top, right, bottom);
+    sgl_area_get_intersect(area, left, top, right, bottom);
     return 1;
 }
 
-void sgl_invalidate_area(sgl_display_t *disp, int32_t left, int32_t top,
-                         int32_t right, int32_t bottom) {
-    sgl_dirty_t *dirty = &disp->dirty;
-    if (!disp || !dirty->dirty_buffer || dirty->flag_full_screen)
-        return;
+static inline int sgl_area_set_union(sgl_area_t *area, int32_t left,
+                                     int32_t top, int32_t right,
+                                     int32_t bottom) {
+    if (!sgl_area_intersects(area, left, top, right, bottom))
+        return 0;
+    sgl_area_get_union(area, left, top, right, bottom);
+    return 1;
+}
+
+static void sgl_merge_invalidate_rect(sgl_dirty_t *dirty, int32_t left,
+                                      int32_t top, int32_t right,
+                                      int32_t bottom) {
+    int i = 0;
+    while (i < dirty->dirty_count) {
+        sgl_area_t *area = &dirty->dirty_buffer[i];
+        if (!sgl_area_set_union(area, left, top, right, bottom)) {
+            ++i;
+            continue;
+        }
+        left = area->left;
+        top = area->top;
+        right = area->right;
+        bottom = area->bottom;
+        dirty->dirty_count -= 1;
+        *area = dirty->dirty_buffer[dirty->dirty_count];
+        i = 0;
+    }
     if (dirty->dirty_count == dirty->dirty_num) {
         dirty->flag_full_screen = 1;
         return;
     }
-    int32_t i = 0;
-    while (i < dirty->dirty_count) {
-        if (sgl_area_intersects(&dirty->dirty_buffer[i], left, top, right,
-                                bottom)) {
-            sgl_area_get_union(&dirty->dirty_buffer[i], left, top, right,
-                               bottom);
-            break;
-        }
-        ++i;
-    }
-    if (i == dirty->dirty_count) {
-        dirty->dirty_count += 1;
-        sgl_set_area(&dirty->dirty_buffer[dirty->dirty_count], left, top, right,
-                     bottom);
-    }
+    sgl_set_area(&dirty->dirty_buffer[dirty->dirty_count], left, top, right,
+                 bottom);
+    dirty->dirty_count += 1;
+}
+
+void sgl_invalidate_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
+                         int32_t h) {
+    sgl_dirty_t *dirty = &disp->dirty;
+    if (!dirty->dirty_buffer || dirty->flag_full_screen)
+        return;
+    sgl_area_t bounds;
+    sgl_rect2area(&disp->root.rect, &bounds);
+    sgl_normalize_rect(&x, &y, &w, &h);
+    if (sgl_clip_rect(&bounds, &x, &y, &w, &h))
+        return;
+    sgl_merge_invalidate_rect(dirty, x, y, x + w - 1, y + h - 1);
+}
+
+static void sgl_reset_dirty(sgl_dirty_t *dirty) {
+    dirty->dirty_count = 0;
+    dirty->flag_full_screen = 0;
 }
 
 static void sgl_buffer_slice(sgl_display_t *disp, sgl_slice_t *slice,
@@ -107,9 +134,9 @@ static void sgl_buffer_slice(sgl_display_t *disp, sgl_slice_t *slice,
 
 static void sgl_draw_proc(sgl_display_t *disp, sgl_widget_t *widget, int32_t ox,
                           int32_t oy, const sgl_area_t *parent_bounds) {
-    sgl_area_t bounds = {0};
-    if (!sgl_set_area_within(&bounds, parent_bounds, ox, oy,
-                             ox + widget->rect.w - 1, oy + widget->rect.h - 1))
+    sgl_area_t bounds = *parent_bounds;
+    if (!sgl_area_set_intersect(&bounds, ox, oy, ox + widget->rect.w - 1,
+                                oy + widget->rect.h - 1))
         return;
     disp->logical_ox = ox;
     disp->logical_oy = oy;
@@ -142,8 +169,8 @@ int sgl_draw(sgl_display_t *disp, sgl_area_t *flush_area) {
 
 int sgl_set_clip_area(sgl_display_t *disp, int32_t left, int32_t top,
                       int32_t right, int32_t bottom) {
-    return sgl_set_area_within(&disp->clip_area, &disp->widget_bounds, left,
-                               top, right, bottom);
+    disp->clip_area = disp->widget_bounds;
+    return sgl_area_set_intersect(&disp->clip_area, left, top, right, bottom);
 }
 
 void sgl_reset_clip_area(sgl_display_t *disp) {

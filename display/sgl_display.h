@@ -44,8 +44,8 @@ typedef struct {
 typedef struct {
     sgl_area_t slice_area;
     sgl_rect_t frame_rect;
-    int32_t slice_count;
-    int32_t slice_state;
+    uint16_t slice_count;
+    uint8_t slice_state;
 } sgl_slice_t;
 
 typedef struct {
@@ -66,8 +66,6 @@ typedef struct sgl_display {
     sgl_framebuffer_t fb;
     sgl_slice_t slice;
     sgl_dirty_t dirty;
-    int32_t hor_res;
-    int32_t ver_res;
     int32_t logical_ox;
     int32_t logical_oy;
     int32_t buffer_ox;
