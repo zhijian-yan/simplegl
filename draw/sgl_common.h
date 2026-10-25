@@ -13,14 +13,14 @@ extern "C" {
 
 #define sgl_logical_offset(x, y) \
     {                            \
-        (x) += disp->logical_ox; \
-        (y) += disp->logical_oy; \
+        (x) += disp->logical_x;  \
+        (y) += disp->logical_y;  \
     }
 
 #define sgl_buffer_offset(x, y) \
     {                           \
-        (x) -= disp->buffer_ox; \
-        (y) -= disp->buffer_oy; \
+        (x) -= disp->buffer_x;  \
+        (y) -= disp->buffer_y;  \
     }
 
 #define SGL_COORD_MAX ((int32_t)1 << 29)
@@ -100,7 +100,7 @@ static inline void sgl_write_vpixel(sgl_display_t *disp, int32_t x, int32_t y,
 static inline void sgl_write_rect(sgl_display_t *disp, int32_t x, int32_t y,
                                   int32_t w, int32_t h, uint32_t color) {
     sgl_framebuffer_t *fb = &disp->fb;
-    if (fb->pixel_index) {
+    if (fb->pixel_shift) {
         for (int32_t i = 0; i < h; ++i)
             sgl_write_hpixel(disp, x, y + i, w, color);
         return;
@@ -108,10 +108,10 @@ static inline void sgl_write_rect(sgl_display_t *disp, int32_t x, int32_t y,
     sgl_write_hpixel(disp, x, y, w, color);
     uint8_t *src =
         (uint8_t *)fb->buffer +
-        (x + (y >> fb->pixel_index) * fb->dirty_width) * fb->pixel_size;
+        (x + (y >> fb->pixel_shift) * fb->slice_width) * fb->pixel_size;
     uint8_t *des = src;
     int32_t line_size = w * fb->pixel_size;
-    int32_t line_stride = fb->dirty_width * fb->pixel_size;
+    int32_t line_stride = fb->slice_width * fb->pixel_size;
     for (int32_t i = 1; i < h; ++i) {
         des += line_stride;
         memcpy(des, src, (size_t)line_size);

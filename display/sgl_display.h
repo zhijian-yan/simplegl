@@ -22,11 +22,11 @@ typedef enum {
 typedef struct {
     void *framebuffer;
     int32_t buffer_size;
-    void *dirty_buffer;
-    void *dirty_pending;
-    uint8_t dirty_num;
+    void *dirty_areas;
+    void *dirty_pending_areas;
+    uint8_t dirty_cap;
     uint8_t flag_full_screen;
-    uint8_t flag_idle_send;
+    uint8_t flag_idle_redraw;
     int32_t hor_res;
     int32_t ver_res;
     sgl_pixel_format_t pixel_format;
@@ -38,23 +38,23 @@ typedef struct {
 typedef struct {
     void *buffer;
     int32_t buffer_size;
-    int32_t dirty_width;
+    int32_t slice_width;
     int32_t pixel_num;
     int32_t pixel_size;
-    int32_t pixel_index;
+    int32_t pixel_shift;
 } sgl_framebuffer_t;
 
 typedef struct {
     sgl_area_t slice_area;
-    sgl_rect_t frame_rect;
-    uint16_t slice_count;
+    sgl_rect_t slice_rect;
+    uint16_t slice_height;
     uint8_t slice_state;
 } sgl_slice_t;
 
 typedef struct {
-    sgl_area_t *dirty_buffer;
-    sgl_area_t *dirty_pending;
-    uint8_t dirty_num;
+    sgl_area_t *dirty_areas;
+    sgl_area_t *dirty_pending_areas;
+    uint8_t dirty_cap;
     uint8_t dirty_count;
     uint8_t pending_count;
     uint8_t flag;
@@ -71,10 +71,10 @@ typedef struct sgl_display {
     sgl_framebuffer_t fb;
     sgl_slice_t slice;
     sgl_dirty_t dirty;
-    int32_t logical_ox;
-    int32_t logical_oy;
-    int32_t buffer_ox;
-    int32_t buffer_oy;
+    int32_t logical_x;
+    int32_t logical_y;
+    int32_t buffer_x;
+    int32_t buffer_y;
     uint32_t frame_count;
     sgl_area_t clip_area;
     sgl_area_t widget_bounds;

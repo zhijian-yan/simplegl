@@ -40,12 +40,12 @@ void sgl_draw_bitmap(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
     int32_t pixel_size = fb->pixel_size;
     int32_t copy_size = w * pixel_size;
     int32_t src_stride = bmp.w * pixel_size;
-    int32_t des_stride = fb->dirty_width * pixel_size;
+    int32_t des_stride = fb->slice_width * pixel_size;
     const uint8_t *src =
         bitmap + ((x - bmp.x) + (y - bmp.y) * bmp.w) * pixel_size;
     sgl_buffer_offset(x, y);
     uint8_t *des = (uint8_t *)disp->fb.buffer +
-                   (x + (y >> fb->pixel_index) * fb->dirty_width) * pixel_size;
+                   (x + (y >> fb->pixel_shift) * fb->slice_width) * pixel_size;
     for (int32_t i = 0; i < h; ++i) {
         memcpy(des, src, (size_t)copy_size);
         src += src_stride;

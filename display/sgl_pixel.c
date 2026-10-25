@@ -7,7 +7,7 @@ static inline uint8_t *sgl_get_pixel(sgl_framebuffer_t *fb, int32_t x,
                                      int32_t y, int32_t pixel_size,
                                      int32_t shift) {
     return (uint8_t *)fb->buffer +
-           (x + (y >> shift) * fb->dirty_width) * pixel_size;
+           (x + (y >> shift) * fb->slice_width) * pixel_size;
 }
 
 void sgl_write_pixel_1bpp(sgl_framebuffer_t *fb, int32_t x, int32_t y,
