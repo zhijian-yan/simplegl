@@ -5,9 +5,20 @@
 #include "draw/sgl_common.h"
 #include "sgl_list.h"
 
-#define SGL_SLICE_STATE_IDLE    0
-#define SGL_SLICE_STATE_START   1
-#define SGL_SLICE_STATE_RUNNING 2
+#define SGL_STATE_SLICE_PREPARE    0
+#define SGL_STATE_SLICE_RUNNING    1
+
+#define SGL_STATE_DIRTY_SWITCH     0
+#define SGL_STATE_DIRTY_IN_FRAME   1
+#define SGL_DIRTY_STATE_SHIFT      0
+#define SGL_DIRTY_STATE_MASK       0x03U
+
+#define SGL_FLAG_DIRTY_FULL        0
+#define SGL_FLAG_DIRTY_IN_FRAME    1
+#define SGL_FLAG_DIRTY_FULL_SCREEN 2
+#define SGL_FLAG_DIRTY_IDLE_SEND   3
+#define SGL_DIRTY_FLAG_SHIFT       2
+#define SGL_DIRTY_FLAG_MASK        0x3CU
 
 static inline void sgl_area_get_intersect(sgl_area_t *area, int32_t left,
                                           int32_t top, int32_t right,
@@ -53,10 +64,18 @@ static inline int sgl_area_set_union(sgl_area_t *area, int32_t left,
     return 1;
 }
 
-static void sgl_merge_invalidate_rect(sgl_dirty_t *dirty, int32_t left,
+static inline void sgl_invalidate_root(sgl_display_t *disp) {
+    sgl_rect_t *root_rect = &disp->root.rect;
+    sgl_set_area(&disp->dirty.dirty_buffer[0], root_rect->x, root_rect->y,
+                 root_rect->x + root_rect->w - 1,
+                 root_rect->y + root_rect->h - 1);
+}
+
+static void sgl_merge_invalidate_area(sgl_display_t *disp, int32_t left,
                                       int32_t top, int32_t right,
                                       int32_t bottom) {
     int i = 0;
+    sgl_dirty_t *dirty = &disp->dirty;
     while (i < dirty->dirty_count) {
         sgl_area_t *area = &dirty->dirty_buffer[i];
         if (!sgl_area_set_union(area, left, top, right, bottom)) {
@@ -71,48 +90,45 @@ static void sgl_merge_invalidate_rect(sgl_dirty_t *dirty, int32_t left,
         *area = dirty->dirty_buffer[dirty->dirty_count];
         i = 0;
     }
+    // buffer full
     if (dirty->dirty_count == dirty->dirty_num) {
-        dirty->flag_full_screen = 1;
+        sgl_flag_set(dirty->flag, SGL_DIRTY_FLAG_SHIFT, SGL_FLAG_DIRTY_FULL);
+        sgl_invalidate_root(disp);
+        dirty->dirty_count = 1;
         return;
     }
+    // add new dirty
     sgl_set_area(&dirty->dirty_buffer[dirty->dirty_count], left, top, right,
                  bottom);
     dirty->dirty_count += 1;
 }
 
-void sgl_invalidate_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
-                         int32_t h) {
+void sgl_invalidate_area(sgl_display_t *disp, int32_t left, int32_t top,
+                         int32_t right, int32_t bottom) {
     sgl_dirty_t *dirty = &disp->dirty;
-    if (!dirty->dirty_buffer || dirty->flag_full_screen)
+    if (sgl_flag_get(dirty->flag, SGL_DIRTY_FLAG_SHIFT, SGL_FLAG_DIRTY_FULL))
         return;
-    sgl_area_t bounds;
-    sgl_rect2area(&disp->root.rect, &bounds);
-    sgl_normalize_rect(&x, &y, &w, &h);
-    if (sgl_clip_rect(&bounds, &x, &y, &w, &h))
+    sgl_area_t area;
+    sgl_rect2area(&disp->root.rect, &area);
+    if (!sgl_area_set_intersect(&area, left, top, right, bottom))
         return;
-    sgl_merge_invalidate_rect(dirty, x, y, x + w - 1, y + h - 1);
-}
-
-static void sgl_reset_dirty(sgl_dirty_t *dirty) {
-    dirty->dirty_count = 0;
-    dirty->flag_full_screen = 0;
-}
-
-static void sgl_buffer_slice(sgl_display_t *disp, sgl_slice_t *slice,
-                             sgl_rect_t dirty_rect) {
-    if (slice->slice_state == SGL_SLICE_STATE_IDLE) {
-        slice->slice_state = SGL_SLICE_STATE_START;
+    if (sgl_flag_get(dirty->flag, SGL_DIRTY_FLAG_SHIFT,
+                     SGL_FLAG_DIRTY_FULL_SCREEN)) {
+        dirty->dirty_count = 1;
+        return;
     }
-    if (slice->slice_state == SGL_SLICE_STATE_START) {
-        if (dirty_rect.w == 0 || dirty_rect.h == 0)
-            return;
-        if (disp->frame_start)
-            disp->frame_start(disp->user_data);
-        slice->frame_rect = dirty_rect;
+    sgl_merge_invalidate_area(disp, area.left, area.top, area.right,
+                              area.bottom);
+}
+
+static int sgl_buffer_slice(sgl_display_t *disp, sgl_area_t *dirty_area) {
+    sgl_slice_t *slice = &disp->slice;
+    if (slice->slice_state == SGL_STATE_SLICE_PREPARE) {
+        sgl_area2rect(dirty_area, &slice->frame_rect);
         slice->slice_count = 0;
-        slice->slice_state = SGL_SLICE_STATE_RUNNING;
+        slice->slice_state = SGL_STATE_SLICE_RUNNING;
     }
-    if (slice->slice_state == SGL_SLICE_STATE_RUNNING) {
+    if (slice->slice_state == SGL_STATE_SLICE_RUNNING) {
         int32_t w_piece, h_piece;
         disp->buffer_ox = slice->frame_rect.x;
         disp->buffer_oy = slice->frame_rect.y + slice->slice_count;
@@ -127,9 +143,11 @@ static void sgl_buffer_slice(sgl_display_t *disp, sgl_slice_t *slice,
                      disp->buffer_ox + w_piece - 1,
                      disp->buffer_oy + h_piece - 1);
         if (slice->slice_count == slice->frame_rect.h) {
-            slice->slice_state = SGL_SLICE_STATE_IDLE;
+            slice->slice_state = SGL_STATE_SLICE_PREPARE;
+            return 1;
         }
     }
+    return 0;
 }
 
 static void sgl_draw_proc(sgl_display_t *disp, sgl_widget_t *widget, int32_t ox,
@@ -151,20 +169,67 @@ static void sgl_draw_proc(sgl_display_t *disp, sgl_widget_t *widget, int32_t ox,
     }
 }
 
-int sgl_draw(sgl_display_t *disp, sgl_area_t *flush_area) {
-    sgl_widget_t *invalidate_widget = &disp->root;
-    sgl_rect_t dirty_rect = invalidate_widget->rect;
-    int32_t ox, oy;
-    sgl_buffer_slice(disp, &disp->slice, dirty_rect);
+static int sgl_draw_dirty(sgl_display_t *disp, sgl_widget_t *invalidate_widget,
+                          sgl_area_t *dirty_area, sgl_area_t *flush_area) {
+    int ret = sgl_buffer_slice(disp, dirty_area);
     *flush_area = disp->slice.slice_area;
+    int32_t ox, oy;
     sgl_widget_get_origin_coords(invalidate_widget, &ox, &oy);
     sgl_draw_proc(disp, invalidate_widget, ox, oy, &disp->slice.slice_area);
-    if (disp->slice.slice_state == SGL_SLICE_STATE_IDLE) {
-        ++disp->frame_count;
-        if (disp->frame_end)
-            disp->frame_end(disp->user_data);
+    return ret;
+}
+
+int sgl_draw(sgl_display_t *disp, sgl_area_t *flush_area) {
+    sgl_dirty_t *dirty = &disp->dirty;
+    if (sgl_state_get(dirty->flag, SGL_DIRTY_STATE_SHIFT,
+                      SGL_DIRTY_STATE_MASK) == SGL_STATE_DIRTY_SWITCH) {
+        if (dirty->dirty_count == 0 &&
+            sgl_flag_get(dirty->flag, SGL_DIRTY_FLAG_SHIFT,
+                         SGL_FLAG_DIRTY_IDLE_SEND)) {
+            sgl_invalidate_root(disp);
+            dirty->dirty_count = 1;
+        }
+        if (dirty->dirty_count) {
+            if (sgl_flag_get(dirty->flag, SGL_DIRTY_FLAG_SHIFT,
+                             SGL_FLAG_DIRTY_FULL_SCREEN)) {
+                sgl_invalidate_root(disp);
+            }
+            // switch buffer
+            sgl_area_t *temp = dirty->dirty_buffer;
+            dirty->dirty_buffer = dirty->dirty_pending;
+            dirty->dirty_pending = temp;
+            dirty->pending_count = dirty->dirty_count;
+            // reset dirty
+            dirty->dirty_count = 0;
+            sgl_flag_reset(dirty->flag, SGL_DIRTY_FLAG_SHIFT,
+                           SGL_FLAG_DIRTY_FULL);
+            // switch state
+            sgl_state_set(dirty->flag, SGL_DIRTY_STATE_SHIFT,
+                          SGL_DIRTY_STATE_MASK, SGL_STATE_DIRTY_IN_FRAME);
+            // a frame start
+            if (disp->frame_start)
+                disp->frame_start(disp->user_data);
+        }
     }
-    return 1;
+    if (sgl_state_get(dirty->flag, SGL_DIRTY_STATE_SHIFT,
+                      SGL_DIRTY_STATE_MASK) == SGL_STATE_DIRTY_IN_FRAME) {
+        if (sgl_draw_dirty(disp, &disp->root,
+                           &disp->dirty.dirty_pending[dirty->pending_count - 1],
+                           flush_area)) {
+            dirty->pending_count -= 1;
+        }
+        // a frame end
+        if (dirty->pending_count == 0) {
+            disp->frame_count += 1;
+            if (disp->frame_end)
+                disp->frame_end(disp->user_data);
+            // switch state
+            sgl_state_set(dirty->flag, SGL_DIRTY_STATE_SHIFT,
+                          SGL_DIRTY_STATE_MASK, SGL_STATE_DIRTY_SWITCH);
+        }
+        return 1;
+    }
+    return 0;
 }
 
 int sgl_set_clip_area(sgl_display_t *disp, int32_t left, int32_t top,
@@ -175,4 +240,22 @@ int sgl_set_clip_area(sgl_display_t *disp, int32_t left, int32_t top,
 
 void sgl_reset_clip_area(sgl_display_t *disp) {
     disp->clip_area = disp->widget_bounds;
+}
+
+void sgl_set_full_screen(sgl_display_t *disp, uint8_t value) {
+    if (value)
+        sgl_flag_set(disp->dirty.flag, SGL_DIRTY_FLAG_SHIFT,
+                     SGL_FLAG_DIRTY_FULL_SCREEN);
+    else
+        sgl_flag_reset(disp->dirty.flag, SGL_DIRTY_FLAG_SHIFT,
+                       SGL_FLAG_DIRTY_FULL_SCREEN);
+}
+
+void sgl_set_idle_send(sgl_display_t *disp, uint8_t value) {
+    if (value)
+        sgl_flag_set(disp->dirty.flag, SGL_DIRTY_FLAG_SHIFT,
+                     SGL_FLAG_DIRTY_IDLE_SEND);
+    else
+        sgl_flag_reset(disp->dirty.flag, SGL_DIRTY_FLAG_SHIFT,
+                       SGL_FLAG_DIRTY_IDLE_SEND);
 }

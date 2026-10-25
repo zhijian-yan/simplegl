@@ -14,8 +14,10 @@ int sgl_draw(sgl_display_t *disp, sgl_area_t *flush_area);
 int sgl_set_clip_area(sgl_display_t *disp, int32_t left, int32_t top,
                       int32_t right, int32_t bottom);
 void sgl_reset_clip_area(sgl_display_t *disp);
-void sgl_invalidate_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
-                         int32_t h);
+void sgl_invalidate_area(sgl_display_t *disp, int32_t left, int32_t top,
+                         int32_t right, int32_t bottom);
+void sgl_set_full_screen(sgl_display_t *disp, uint8_t value);
+void sgl_set_idle_send(sgl_display_t *disp, uint8_t value);
 
 #ifdef __cplusplus
 }

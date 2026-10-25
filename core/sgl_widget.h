@@ -43,6 +43,7 @@ void sgl_widget_set_size(sgl_widget_t *widget, int32_t w, int32_t h);
 void sgl_widget_set_rect(sgl_widget_t *widget, int32_t x, int32_t y, int32_t w,
                          int32_t h);
 sgl_area_t sgl_widget_get_bounds(sgl_widget_t *widget);
+void sgl_invalidate_widget(sgl_widget_t *widget);
 
 #ifdef __cplusplus
 }

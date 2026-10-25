@@ -4,11 +4,22 @@
 #ifndef SGL_TYPES_H
 #define SGL_TYPES_H
 
+#include <assert.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define sgl_check_param(param)             assert((param) != 0)
+
+#define sgl_flag_get(param, shift, flag)   (param & (1U << (flag + shift)))
+#define sgl_flag_set(param, shift, flag)   (param |= (1U << (flag + shift)))
+#define sgl_flag_reset(param, shift, flag) (param &= ~(1U << (flag + shift)))
+
+#define sgl_state_get(param, shift, mask)  ((param & mask) >> shift)
+#define sgl_state_set(param, shift, mask, state) \
+    (param = ((param & ~mask) | (state << shift)))
 
 typedef enum {
     SGL_MONO_BLACK = 0,

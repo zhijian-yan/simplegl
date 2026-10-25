@@ -2,6 +2,7 @@
 // Copyright (c) 2025-2026 Zhijian Yan
 
 #include "sgl_display.h"
+#include "core/sgl_core.h"
 #include "draw/sgl_common.h"
 #include "sgl_pixel.h"
 
@@ -9,11 +10,13 @@ static int sgl_set_pixel_format(sgl_display_t *disp, int32_t buffer_size,
                                 sgl_pixel_format_t pixel_format);
 
 int sgl_display_init(sgl_display_t *disp, const sgl_display_config_t *config) {
-    if (!disp || !config || !config->framebuffer)
+    if (!disp || !config || !config->framebuffer || !config->dirty_buffer ||
+        !config->dirty_pending || !config->dirty_num)
         return -1;
     memset(disp, 0, sizeof(sgl_display_t));
     disp->fb.buffer = config->framebuffer;
     disp->dirty.dirty_buffer = config->dirty_buffer;
+    disp->dirty.dirty_pending = config->dirty_pending;
     disp->dirty.dirty_num = config->dirty_num;
     disp->frame_start = config->frame_start;
     disp->frame_end = config->frame_end;
@@ -22,6 +25,9 @@ int sgl_display_init(sgl_display_t *disp, const sgl_display_config_t *config) {
     sgl_widget_init(&disp->root, &disp->background, 0, 0, config->hor_res,
                     config->ver_res, NULL);
     disp->root.disp = disp;
+    sgl_set_full_screen(disp, config->flag_full_screen);
+    sgl_set_idle_send(disp, config->flag_idle_send);
+    sgl_invalidate_area(disp, 0, 0, config->hor_res - 1, config->ver_res - 1);
     return 0;
 }
 
@@ -96,4 +102,16 @@ void sgl_clear_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
 
 void sgl_clear_widget(const sgl_widget_t *widget, uint8_t value) {
     sgl_clear_rect(widget->disp, 0, 0, widget->rect.w, widget->rect.h, value);
+}
+
+void sgl_set_framebuffer(sgl_display_t *disp, void *buffer) {
+    disp->fb.buffer = buffer;
+}
+
+uint32_t sgl_get_frame_count(sgl_display_t *disp) {
+    return disp->frame_count;
+}
+
+void sgl_reset_frame_count(sgl_display_t *disp) {
+    disp->frame_count = 0;
 }

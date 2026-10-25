@@ -2,6 +2,7 @@
 // Copyright (c) 2025-2026 Zhijian Yan
 
 #include "sgl_widget.h"
+#include "core/sgl_core.h"
 #include "draw/sgl_common.h"
 #include "sgl_list.h"
 
@@ -76,6 +77,14 @@ sgl_area_t sgl_widget_get_bounds(sgl_widget_t *widget) {
     bounds.right = bounds.left + widget->rect.w - 1;
     bounds.bottom = bounds.top + widget->rect.h - 1;
     return bounds;
+}
+
+void sgl_invalidate_widget(sgl_widget_t *widget) {
+    if (!widget->disp)
+        return;
+    sgl_area_t area = sgl_widget_get_bounds(widget);
+    sgl_invalidate_area(widget->disp, area.left, area.top, area.right,
+                        area.bottom);
 }
 
 void sgl_widget_set_coords(sgl_widget_t *widget, int32_t x, int32_t y) {

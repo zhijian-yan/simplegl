@@ -23,7 +23,10 @@ typedef struct {
     void *framebuffer;
     int32_t buffer_size;
     void *dirty_buffer;
+    void *dirty_pending;
     uint8_t dirty_num;
+    uint8_t flag_full_screen;
+    uint8_t flag_idle_send;
     int32_t hor_res;
     int32_t ver_res;
     sgl_pixel_format_t pixel_format;
@@ -50,9 +53,11 @@ typedef struct {
 
 typedef struct {
     sgl_area_t *dirty_buffer;
-    uint8_t dirty_count;
+    sgl_area_t *dirty_pending;
     uint8_t dirty_num;
-    uint8_t flag_full_screen;
+    uint8_t dirty_count;
+    uint8_t pending_count;
+    uint8_t flag;
 } sgl_dirty_t;
 
 typedef void (*sgl_write_pixel_t)(sgl_framebuffer_t *fb, int32_t x, int32_t y,
@@ -70,9 +75,9 @@ typedef struct sgl_display {
     int32_t logical_oy;
     int32_t buffer_ox;
     int32_t buffer_oy;
+    uint32_t frame_count;
     sgl_area_t clip_area;
     sgl_area_t widget_bounds;
-    int32_t frame_count;
     sgl_widget_t root;
     sgl_widget_class_t background;
     sgl_write_pixel_t write_pixel;
@@ -87,18 +92,9 @@ void sgl_clear_framebuffer(sgl_display_t *disp, uint8_t value);
 void sgl_clear_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
                     int32_t h, uint8_t value);
 void sgl_clear_widget(const sgl_widget_t *widget, uint8_t value);
-
-static inline void sgl_set_framebuffer(sgl_display_t *disp, void *buffer) {
-    disp->fb.buffer = buffer;
-}
-
-static inline int32_t sgl_get_frame_count(const sgl_display_t *disp) {
-    return disp->frame_count;
-}
-
-static inline void sgl_reset_frame_count(sgl_display_t *disp) {
-    disp->frame_count = 0;
-}
+void sgl_set_framebuffer(sgl_display_t *disp, void *buffer);
+uint32_t sgl_get_frame_count(sgl_display_t *disp);
+void sgl_reset_frame_count(sgl_display_t *disp);
 
 #ifdef __cplusplus
 }
