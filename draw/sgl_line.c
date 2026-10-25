@@ -5,6 +5,7 @@
 #include "sgl_common.h"
 
 void sgl_draw_point(sgl_display_t *disp, int32_t x, int32_t y, uint32_t color) {
+    sgl_check_param(disp);
     sgl_logical_offset(x, y);
     if (!sgl_area_intersects(&disp->clip_area, x, y, x, y))
         return;
@@ -14,6 +15,7 @@ void sgl_draw_point(sgl_display_t *disp, int32_t x, int32_t y, uint32_t color) {
 
 void sgl_draw_hline(sgl_display_t *disp, int32_t x, int32_t y, int32_t len,
                     uint32_t color) {
+    sgl_check_param(disp);
     sgl_logical_offset(x, y);
     if (y < disp->clip_area.top || y > disp->clip_area.bottom)
         return;
@@ -26,6 +28,7 @@ void sgl_draw_hline(sgl_display_t *disp, int32_t x, int32_t y, int32_t len,
 
 void sgl_draw_vline(sgl_display_t *disp, int32_t x, int32_t y, int32_t len,
                     uint32_t color) {
+    sgl_check_param(disp);
     sgl_logical_offset(x, y);
     if (x < disp->clip_area.left || x > disp->clip_area.right)
         return;
@@ -38,6 +41,7 @@ void sgl_draw_vline(sgl_display_t *disp, int32_t x, int32_t y, int32_t len,
 
 void sgl_draw_line(sgl_display_t *disp, int32_t x0, int32_t y0, int32_t x1,
                    int32_t y1, uint32_t color) {
+    sgl_check_param(disp);
     int32_t dx, dy, sx, sy, err;
     dx = x1 - x0;
     dy = y1 - y0;

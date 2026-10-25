@@ -14,6 +14,8 @@ void sgl_draw_filled_circle_section(sgl_display_t *disp, int32_t xc, int32_t yc,
 
 void sgl_draw_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
                    int32_t h, int is_filled, uint32_t color) {
+    sgl_check_param(disp);
+    ;
     sgl_normalize_rect(&x, &y, &w, &h);
     if (is_filled == 1 || h < 2 || w < 2) {
         sgl_logical_offset(x, y);
@@ -31,6 +33,7 @@ void sgl_draw_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
 
 void sgl_draw_round_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
                          int32_t h, int32_t r, int is_filled, uint32_t color) {
+    sgl_check_param(disp);
     sgl_normalize_rect(&x, &y, &w, &h);
     int32_t iw, ih;
     if (w <= 2 || h <= 2) {

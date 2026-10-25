@@ -6,6 +6,8 @@
 
 void sgl_draw_bitmap_1bpp(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
                           int32_t h, const uint8_t *bitmap, uint32_t color) {
+    sgl_check_param(disp);
+    sgl_check_param(bitmap);
     sgl_normalize_rect(&x, &y, &w, &h);
     sgl_logical_offset(x, y);
     sgl_rect_t bmp = {x, y, w, h};
@@ -27,6 +29,8 @@ void sgl_draw_bitmap_1bpp(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
 
 void sgl_draw_bitmap(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
                      int32_t h, const uint8_t *bitmap) {
+    sgl_check_param(disp);
+    sgl_check_param(bitmap);
     sgl_normalize_rect(&x, &y, &w, &h);
     sgl_logical_offset(x, y);
     sgl_rect_t bmp = {x, y, w, h};

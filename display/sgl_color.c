@@ -5,6 +5,9 @@
 
 void sgl_color_hsv2rgb(uint16_t h, uint8_t s, uint8_t v, uint8_t *r, uint8_t *g,
                        uint8_t *b) {
+    sgl_check_param(r);
+    sgl_check_param(g);
+    sgl_check_param(b);
     uint8_t sv_r8, i, f, p, q, t;
     if (s == 0) {
         *r = *g = *b = v;
@@ -53,6 +56,9 @@ void sgl_color_hsv2rgb(uint16_t h, uint8_t s, uint8_t v, uint8_t *r, uint8_t *g,
 
 void sgl_color_rgb2hsv(uint8_t r, uint8_t g, uint8_t b, uint16_t *h, uint8_t *s,
                        uint8_t *v) {
+    sgl_check_param(h);
+    sgl_check_param(s);
+    sgl_check_param(v);
     uint8_t max, min, delta;
     max = r > g ? (r > b ? r : b) : (g > b ? g : b);
     min = r < g ? (r < b ? r : b) : (g < b ? g : b);

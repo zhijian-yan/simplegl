@@ -10,6 +10,7 @@
 void sgl_show_string(sgl_display_t *disp, int32_t x, int32_t y, const char *str,
                      int32_t length, sgl_align_t align, sgl_dir_t dir,
                      uint32_t color) {
+    sgl_check_param(disp);
     int32_t i;
     int32_t fontwidth = 8;
     int32_t fontheight = 16;

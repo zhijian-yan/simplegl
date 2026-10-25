@@ -105,6 +105,7 @@ static void sgl_merge_invalidate_area(sgl_display_t *disp, int32_t left,
 
 void sgl_invalidate_area(sgl_display_t *disp, int32_t left, int32_t top,
                          int32_t right, int32_t bottom) {
+    sgl_check_param(disp);
     sgl_dirty_t *dirty = &disp->dirty;
     if (sgl_flag_get(dirty->flag, SGL_DIRTY_FLAG_SHIFT, SGL_FLAG_DIRTY_FULL))
         return;
@@ -180,6 +181,8 @@ static int sgl_draw_dirty(sgl_display_t *disp, sgl_widget_t *invalidate_widget,
 }
 
 int sgl_draw(sgl_display_t *disp, sgl_area_t *flush_area) {
+    sgl_check_param(disp);
+    sgl_check_param(flush_area);
     sgl_dirty_t *dirty = &disp->dirty;
     if (sgl_state_get(dirty->flag, SGL_DIRTY_STATE_SHIFT,
                       SGL_DIRTY_STATE_MASK) == SGL_STATE_DIRTY_SWITCH) {
@@ -234,15 +237,18 @@ int sgl_draw(sgl_display_t *disp, sgl_area_t *flush_area) {
 
 int sgl_set_clip_area(sgl_display_t *disp, int32_t left, int32_t top,
                       int32_t right, int32_t bottom) {
+    sgl_check_param(disp);
     disp->clip_area = disp->widget_bounds;
     return sgl_area_set_intersect(&disp->clip_area, left, top, right, bottom);
 }
 
 void sgl_reset_clip_area(sgl_display_t *disp) {
+    sgl_check_param(disp);
     disp->clip_area = disp->widget_bounds;
 }
 
 void sgl_set_full_screen(sgl_display_t *disp, uint8_t value) {
+    sgl_check_param(disp);
     if (value)
         sgl_flag_set(disp->dirty.flag, SGL_DIRTY_FLAG_SHIFT,
                      SGL_FLAG_DIRTY_FULL_SCREEN);
@@ -252,6 +258,7 @@ void sgl_set_full_screen(sgl_display_t *disp, uint8_t value) {
 }
 
 void sgl_set_idle_send(sgl_display_t *disp, uint8_t value) {
+    sgl_check_param(disp);
     if (value)
         sgl_flag_set(disp->dirty.flag, SGL_DIRTY_FLAG_SHIFT,
                      SGL_FLAG_DIRTY_IDLE_SEND);

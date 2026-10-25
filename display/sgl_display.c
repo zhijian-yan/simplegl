@@ -10,9 +10,13 @@ static int sgl_set_pixel_format(sgl_display_t *disp, int32_t buffer_size,
                                 sgl_pixel_format_t pixel_format);
 
 int sgl_display_init(sgl_display_t *disp, const sgl_display_config_t *config) {
-    if (!disp || !config || !config->framebuffer || !config->dirty_buffer ||
-        !config->dirty_pending || !config->dirty_num)
-        return -1;
+    sgl_check_param(disp);
+    sgl_check_param(config);
+    sgl_check_param(config->framebuffer);
+    sgl_check_param(config->buffer_size);
+    sgl_check_param(config->dirty_buffer);
+    sgl_check_param(config->dirty_pending);
+    sgl_check_param(config->dirty_num);
     memset(disp, 0, sizeof(sgl_display_t));
     disp->fb.buffer = config->framebuffer;
     disp->dirty.dirty_buffer = config->dirty_buffer;
@@ -69,7 +73,7 @@ static int sgl_set_pixel_format(sgl_display_t *disp, int32_t buffer_size,
             break;
     }
     pixel_num = buffer_size / pixel_size;
-    if (buffer_size == 0 || pixel_num < disp->root.rect.w)
+    if (pixel_num < disp->root.rect.w)
         return -1;
     disp->fb.pixel_size = pixel_size;
     disp->fb.pixel_index = pixel_index;
@@ -79,11 +83,13 @@ static int sgl_set_pixel_format(sgl_display_t *disp, int32_t buffer_size,
 }
 
 void sgl_clear_framebuffer(sgl_display_t *disp, uint8_t value) {
+    sgl_check_param(disp);
     memset(disp->fb.buffer, value, (size_t)disp->fb.buffer_size);
 }
 
 void sgl_clear_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
                     int32_t h, uint8_t value) {
+    sgl_check_param(disp);
     sgl_normalize_rect(&x, &y, &w, &h);
     sgl_logical_offset(x, y);
     if (sgl_clip_rect(&disp->clip_area, &x, &y, &w, &h))
@@ -101,17 +107,22 @@ void sgl_clear_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
 }
 
 void sgl_clear_widget(const sgl_widget_t *widget, uint8_t value) {
+    sgl_check_param(widget);
     sgl_clear_rect(widget->disp, 0, 0, widget->rect.w, widget->rect.h, value);
 }
 
 void sgl_set_framebuffer(sgl_display_t *disp, void *buffer) {
+    sgl_check_param(disp);
+    sgl_check_param(buffer);
     disp->fb.buffer = buffer;
 }
 
 uint32_t sgl_get_frame_count(sgl_display_t *disp) {
+    sgl_check_param(disp);
     return disp->frame_count;
 }
 
 void sgl_reset_frame_count(sgl_display_t *disp) {
+    sgl_check_param(disp);
     disp->frame_count = 0;
 }

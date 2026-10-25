@@ -122,6 +122,7 @@ static void sgl_draw_circle_with_offset(sgl_display_t *disp, int32_t xc,
 
 void sgl_draw_circle(sgl_display_t *disp, int32_t xc, int32_t yc, int32_t r,
                      int32_t is_filled, uint32_t color) {
+    sgl_check_param(disp);
     if (r < 0)
         r = -r;
     sgl_logical_offset(xc, yc);
@@ -135,6 +136,7 @@ void sgl_draw_circle(sgl_display_t *disp, int32_t xc, int32_t yc, int32_t r,
 void sgl_draw_circle_with_diameter(sgl_display_t *disp, int32_t x, int32_t y,
                                    int32_t d, int32_t is_filled,
                                    uint32_t color) {
+    sgl_check_param(disp);
     int32_t r;
     if (d < 0)
         d = -d;
@@ -264,6 +266,7 @@ void sgl_draw_filled_ellipse_section(sgl_display_t *disp, int32_t xc,
 
 void sgl_draw_ellipse(sgl_display_t *disp, int32_t xc, int32_t yc, int32_t rx,
                       int32_t ry, int32_t is_filled, uint32_t color) {
+    sgl_check_param(disp);
     if (rx < 0)
         rx = -rx;
     if (ry < 0)
