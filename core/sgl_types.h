@@ -11,15 +11,14 @@
 extern "C" {
 #endif
 
-#define sgl_check_param(param)             assert((param) != 0)
+#define sgl_check_param(param) assert((param) != 0)
 
-#define sgl_flag_get(param, shift, flag)   (param & (1U << (flag + shift)))
-#define sgl_flag_set(param, shift, flag)   (param |= (1U << (flag + shift)))
-#define sgl_flag_reset(param, shift, flag) (param &= ~(1U << (flag + shift)))
-
-#define sgl_state_get(param, shift, mask)  ((param & mask) >> shift)
-#define sgl_state_set(param, shift, mask, state) \
-    (param = ((param & ~mask) | (state << shift)))
+#define sgl_flag_get(type, param, shift, flag) \
+    ((param) & (type)((type)1U << ((flag) + (shift))))
+#define sgl_flag_set(type, param, shift, flag) \
+    ((param) |= (type)((type)1U << ((flag) + (shift))))
+#define sgl_flag_reset(type, param, shift, flag) \
+    ((param) &= (type) ~(type)((type)1U << ((flag) + (shift))))
 
 typedef enum {
     SGL_MONO_BLACK = 0,
@@ -82,6 +81,10 @@ struct sgl_list_head {
     struct sgl_list_head *next;
     struct sgl_list_head *prev;
 };
+
+typedef struct sgl_display sgl_display_t;
+
+typedef struct sgl_widget sgl_widget_t;
 
 #ifdef __cplusplus
 }

@@ -65,7 +65,7 @@ static inline uint32_t sgl_color_gray(uint32_t color) {
     uint8_t r = sgl_color_get_r(color);
     uint8_t g = sgl_color_get_g(color);
     uint8_t b = sgl_color_get_b(color);
-    uint8_t y = (r * 77 + g * 150 + b * 29) >> 8;
+    uint8_t y = (uint8_t)((r * 77 + g * 150 + b * 29) >> 8);
     return sgl_color_rgb(y, y, y);
 }
 
@@ -76,11 +76,14 @@ static inline uint32_t sgl_color_blend(uint32_t fg, uint32_t bg) {
     if (a == 0)
         return bg;
     uint8_t r =
-        (sgl_color_get_r(fg) * a + sgl_color_get_r(bg) * (255 - a)) >> 8;
+        (uint8_t)((sgl_color_get_r(fg) * a + sgl_color_get_r(bg) * (255 - a)) >>
+                  8);
     uint8_t g =
-        (sgl_color_get_g(fg) * a + sgl_color_get_g(bg) * (255 - a)) >> 8;
+        (uint8_t)((sgl_color_get_g(fg) * a + sgl_color_get_g(bg) * (255 - a)) >>
+                  8);
     uint8_t b =
-        (sgl_color_get_b(fg) * a + sgl_color_get_b(bg) * (255 - a)) >> 8;
+        (uint8_t)((sgl_color_get_b(fg) * a + sgl_color_get_b(bg) * (255 - a)) >>
+                  8);
     return sgl_color_rgb(r, g, b);
 }
 

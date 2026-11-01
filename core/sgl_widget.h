@@ -10,10 +10,6 @@
 extern "C" {
 #endif
 
-typedef struct sgl_display sgl_display_t;
-
-typedef struct sgl_widget sgl_widget_t;
-
 typedef void (*sgl_widget_draw_t)(sgl_display_t *disp, sgl_widget_t *widget);
 
 typedef struct {

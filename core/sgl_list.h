@@ -80,11 +80,11 @@ static inline int sgl_list_empty(const struct sgl_list_head *head) {
 #define sgl_list_last_entry(ptr, type, member) \
     sgl_list_entry((ptr)->prev, type, member)
 
-#define sgl_list_next_entry(pos, member) \
-    sgl_list_entry((pos)->member.next, typeof(*(pos)), member)
+#define sgl_list_next_entry(pos, type, member) \
+    sgl_list_entry((pos)->member.next, type, member)
 
-#define sgl_list_prev_entry(pos, member) \
-    sgl_list_entry((pos)->member.prev, typeof(*(pos)), member)
+#define sgl_list_prev_entry(pos, type, member) \
+    sgl_list_entry((pos)->member.prev, type, member)
 
 #define sgl_list_for_each(pos, head) \
     for (pos = (head)->next; !sgl_list_is_head(pos, (head)); pos = pos->next)
@@ -96,10 +96,10 @@ static inline int sgl_list_empty(const struct sgl_list_head *head) {
 #define sgl_list_entry_is_head(pos, head, member) \
     sgl_list_is_head(&pos->member, (head))
 
-#define sgl_list_for_each_entry(pos, head, member)               \
-    for (pos = sgl_list_first_entry(head, typeof(*pos), member); \
-         !sgl_list_entry_is_head(pos, head, member);             \
-         pos = sgl_list_next_entry(pos, member))
+#define sgl_list_for_each_entry(pos, type, head, member) \
+    for (pos = sgl_list_first_entry(head, type, member); \
+         !sgl_list_entry_is_head(pos, head, member);     \
+         pos = sgl_list_next_entry(pos, type, member))
 
 #ifdef __cplusplus
 }

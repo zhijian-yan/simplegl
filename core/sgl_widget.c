@@ -17,10 +17,7 @@ void sgl_widget_init(sgl_widget_t *widget, sgl_widget_class_t *cls, int32_t x,
     sgl_init_list_head(&widget->sibling);
     sgl_init_list_head(&widget->children);
     sgl_normalize_rect(&x, &y, &w, &h);
-    widget->rect.x = x;
-    widget->rect.y = y;
-    widget->rect.w = w;
-    widget->rect.h = h;
+    sgl_set_rect(&widget->rect, x, y, w, h);
     widget->cls = cls;
     widget->user_data = user_data;
 }
@@ -33,7 +30,7 @@ void sgl_widget_class_config(sgl_widget_class_t *cls, sgl_widget_draw_t draw) {
 static void sgl_widget_set_display(sgl_widget_t *widget, sgl_display_t *disp) {
     sgl_widget_t *child;
     widget->disp = disp;
-    sgl_list_for_each_entry(child, &widget->children, sibling) {
+    sgl_list_for_each_entry(child, sgl_widget_t, &widget->children, sibling) {
         sgl_widget_set_display(child, disp);
     }
 }
@@ -94,22 +91,25 @@ void sgl_invalidate_widget(sgl_widget_t *widget) {
 
 void sgl_widget_set_coords(sgl_widget_t *widget, int32_t x, int32_t y) {
     sgl_check_param(widget);
+    sgl_invalidate_widget(widget);
     widget->rect.x = x;
     widget->rect.y = y;
+    sgl_invalidate_widget(widget);
 }
 
 void sgl_widget_set_size(sgl_widget_t *widget, int32_t w, int32_t h) {
     sgl_check_param(widget);
+    sgl_invalidate_widget(widget);
     widget->rect.w = w;
     widget->rect.h = h;
+    sgl_invalidate_widget(widget);
 }
 
 void sgl_widget_set_rect(sgl_widget_t *widget, int32_t x, int32_t y, int32_t w,
                          int32_t h) {
     sgl_check_param(widget);
     sgl_normalize_rect(&x, &y, &w, &h);
-    widget->rect.x = x;
-    widget->rect.y = y;
-    widget->rect.w = w;
-    widget->rect.h = h;
+    sgl_invalidate_widget(widget);
+    sgl_set_rect(&widget->rect, x, y, w, h);
+    sgl_invalidate_widget(widget);
 }

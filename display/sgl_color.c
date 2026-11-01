@@ -13,13 +13,13 @@ void sgl_color_hsv2rgb(uint16_t h, uint8_t s, uint8_t v, uint8_t *r, uint8_t *g,
         *r = *g = *b = v;
         return;
     }
-    sv_r8 = (s * v) >> 8;
-    h = (h * 1536) / 360;
-    i = h >> 8;
-    f = h & 255;
+    sv_r8 = (uint8_t)((s * v) >> 8);
+    h = (uint16_t)((h * 1536) / 360);
+    i = (uint8_t)(h >> 8);
+    f = (uint8_t)(h & 255);
     p = v - sv_r8;
-    q = v - ((sv_r8 * f) >> 8);
-    t = v - ((sv_r8 * (255 - f)) >> 8);
+    q = (uint8_t)(v - ((sv_r8 * f) >> 8));
+    t = (uint8_t)(v - ((sv_r8 * (255 - f)) >> 8));
     switch (i) {
         case 0:
             *r = v;
@@ -71,12 +71,12 @@ void sgl_color_rgb2hsv(uint8_t r, uint8_t g, uint8_t b, uint16_t *h, uint8_t *s,
     }
     *s = (uint8_t)((uint16_t)delta * 255 / max);
     if (max == r) {
-        *h = 60 * (int16_t)(g - b) / delta;
+        *h = (uint16_t)(60 * (int16_t)(g - b) / delta);
         if ((int16_t)*h < 0)
             *h += 360;
     } else if (max == g) {
-        *h = 60 * (int16_t)(b - r) / delta + 120;
+        *h = (uint16_t)(60 * (int16_t)(b - r) / delta + 120);
     } else {
-        *h = 60 * (int16_t)(r - g) / delta + 240;
+        *h = (uint16_t)(60 * (int16_t)(r - g) / delta + 240);
     }
 }

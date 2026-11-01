@@ -24,7 +24,7 @@ typedef struct {
     int32_t buffer_size;
     void *dirty_areas;
     void *dirty_pending_areas;
-    uint8_t dirty_cap;
+    uint16_t dirty_cap;
     uint8_t flag_full_screen;
     uint8_t flag_idle_redraw;
     int32_t hor_res;
@@ -54,10 +54,11 @@ typedef struct {
 typedef struct {
     sgl_area_t *dirty_areas;
     sgl_area_t *dirty_pending_areas;
-    uint8_t dirty_cap;
-    uint8_t dirty_count;
-    uint8_t pending_count;
-    uint8_t flag;
+    uint16_t dirty_cap;
+    volatile uint16_t dirty_count;
+    uint16_t pending_count;
+    uint8_t state;
+    volatile uint8_t flag;
 } sgl_dirty_t;
 
 typedef void (*sgl_write_pixel_t)(sgl_framebuffer_t *fb, int32_t x, int32_t y,
@@ -67,7 +68,7 @@ typedef void (*sgl_write_pixel_hline_t)(sgl_framebuffer_t *fb, int32_t x,
                                         int32_t y, int32_t len,
                                         uint32_t format_color);
 
-typedef struct sgl_display {
+struct sgl_display {
     sgl_framebuffer_t fb;
     sgl_slice_t slice;
     sgl_dirty_t dirty;
@@ -85,7 +86,7 @@ typedef struct sgl_display {
     void (*frame_start)(void *user_data);
     void (*frame_end)(void *user_data);
     void *user_data;
-} sgl_display_t;
+};
 
 int sgl_display_init(sgl_display_t *disp, const sgl_display_config_t *config);
 void sgl_clear_framebuffer(sgl_display_t *disp, uint8_t value);
