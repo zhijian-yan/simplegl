@@ -4,6 +4,7 @@
 #include "sgl_core.h"
 #include "draw/sgl_common.h"
 #include "sgl_list.h"
+#include "sgl_port.h"
 
 #define SGL_STATE_SLICE_PREPARE    0
 #define SGL_STATE_SLICE_RUNNING    1
@@ -105,20 +106,25 @@ void sgl_invalidate_area(sgl_display_t *disp, int32_t left, int32_t top,
                          int32_t right, int32_t bottom) {
     sgl_check_param(disp);
     sgl_dirty_t *dirty = &disp->dirty;
-    if (sgl_flag_get(uint8_t, dirty->flag, SGL_DIRTY_FLAG_SHIFT,
-                     SGL_FLAG_DIRTY_FULL))
-        return;
     sgl_area_t area;
     sgl_rect2area(&disp->root.rect, &area);
     if (!sgl_area_set_intersect(&area, left, top, right, bottom))
         return;
+    int lock_state = sgl_lock();
+    if (sgl_flag_get(uint8_t, dirty->flag, SGL_DIRTY_FLAG_SHIFT,
+                     SGL_FLAG_DIRTY_FULL)) {
+        sgl_unlock(lock_state);
+        return;
+    }
     if (sgl_flag_get(uint8_t, dirty->flag, SGL_DIRTY_FLAG_SHIFT,
                      SGL_FLAG_DIRTY_FULL_SCREEN)) {
         dirty->dirty_count = 1;
+        sgl_unlock(lock_state);
         return;
     }
     sgl_merge_invalidate_area(disp, area.left, area.top, area.right,
                               area.bottom);
+    sgl_unlock(lock_state);
 }
 
 static int sgl_slice(sgl_display_t *disp, sgl_area_t *dirty_area) {
@@ -184,6 +190,8 @@ int sgl_draw(sgl_display_t *disp, sgl_area_t *flush_area) {
     sgl_check_param(disp);
     sgl_dirty_t *dirty = &disp->dirty;
     if (dirty->state == SGL_STATE_DIRTY_IDLE) {
+        int frame_start = 0;
+        int lock_state = sgl_lock();
         if (dirty->dirty_count == 0 &&
             sgl_flag_get(uint8_t, dirty->flag, SGL_DIRTY_FLAG_SHIFT,
                          SGL_FLAG_DIRTY_IDLE_REDRAW)) {
@@ -204,6 +212,10 @@ int sgl_draw(sgl_display_t *disp, sgl_area_t *flush_area) {
             dirty->dirty_count = 0;
             sgl_flag_reset(uint8_t, dirty->flag, SGL_DIRTY_FLAG_SHIFT,
                            SGL_FLAG_DIRTY_FULL);
+            frame_start = 1;
+        }
+        sgl_unlock(lock_state);
+        if (frame_start) {
             // switch state
             dirty->state = SGL_STATE_DIRTY_FLUSHING;
             // a frame start
