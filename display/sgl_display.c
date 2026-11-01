@@ -29,8 +29,7 @@ int sgl_display_init(sgl_display_t *disp, const sgl_display_config_t *config) {
     sgl_widget_init(&disp->root, &disp->background, 0, 0, config->hor_res,
                     config->ver_res, NULL);
     disp->root.disp = disp;
-    sgl_set_full_screen(disp, config->flag_full_screen);
-    sgl_set_idle_redraw(disp, config->flag_idle_redraw);
+    sgl_set_invalidate_full_screen(disp, config->flag_invalidate_full_screen);
     sgl_invalidate_area(disp, 0, 0, config->hor_res - 1, config->ver_res - 1);
     return 0;
 }

@@ -25,8 +25,7 @@ typedef struct {
     void *dirty_areas;
     void *dirty_pending_areas;
     uint16_t dirty_cap;
-    uint8_t flag_full_screen;
-    uint8_t flag_idle_redraw;
+    uint8_t flag_invalidate_full_screen;
     int32_t hor_res;
     int32_t ver_res;
     sgl_pixel_format_t pixel_format;
