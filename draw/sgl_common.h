@@ -5,7 +5,6 @@
 #define SGL_COMMON_H
 
 #include "display/sgl_display.h"
-#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {

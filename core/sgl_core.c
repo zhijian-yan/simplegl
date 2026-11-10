@@ -66,6 +66,7 @@ static inline void sgl_invalidate_root(sgl_display_t *disp) {
     sgl_set_area(&disp->dirty.dirty_areas[0], root_rect->x, root_rect->y,
                  root_rect->x + root_rect->w - 1,
                  root_rect->y + root_rect->h - 1);
+    disp->dirty.dirty_count = 1;
 }
 
 static void sgl_merge_invalidate_area(sgl_display_t *disp, int32_t left,
@@ -92,7 +93,6 @@ static void sgl_merge_invalidate_area(sgl_display_t *disp, int32_t left,
         sgl_flag_set(uint8_t, dirty->flag, SGL_DIRTY_FLAG_SHIFT,
                      SGL_FLAG_DIRTY_FULL);
         sgl_invalidate_root(disp);
-        dirty->dirty_count = 1;
         return;
     }
     // add new dirty
@@ -126,6 +126,20 @@ void sgl_invalidate_area(sgl_display_t *disp, int32_t left, int32_t top,
     sgl_unlock(lock_state);
 }
 
+void sgl_invalidate_widget(sgl_widget_t *widget) {
+    sgl_check_param(widget);
+    if (!widget->disp)
+        return;
+    sgl_area_t area = sgl_widget_get_bounds(widget);
+    sgl_invalidate_area(widget->disp, area.left, area.top, area.right,
+                        area.bottom);
+}
+
+void sgl_invalidate_display(sgl_display_t *disp) {
+    sgl_check_param(disp);
+    sgl_invalidate_root(disp);
+}
+
 static int sgl_slice(sgl_display_t *disp, sgl_area_t *dirty_area) {
     sgl_slice_t *slice = &disp->slice;
     if (slice->slice_state == SGL_STATE_SLICE_PREPARE) {
@@ -155,8 +169,9 @@ static int sgl_slice(sgl_display_t *disp, sgl_area_t *dirty_area) {
     return 0;
 }
 
-static void sgl_draw_proc(sgl_display_t *disp, sgl_widget_t *widget, int32_t ox,
-                          int32_t oy, const sgl_area_t *parent_bounds) {
+static void sgl_draw_process(sgl_display_t *disp, sgl_widget_t *widget,
+                             int32_t ox, int32_t oy,
+                             const sgl_area_t *parent_bounds) {
     sgl_area_t bounds = *parent_bounds;
     if (!sgl_area_set_intersect(&bounds, ox, oy, ox + widget->rect.w - 1,
                                 oy + widget->rect.h - 1))
@@ -169,8 +184,8 @@ static void sgl_draw_proc(sgl_display_t *disp, sgl_widget_t *widget, int32_t ox,
         widget->cls->draw(disp, widget);
     sgl_widget_t *child;
     sgl_list_for_each_entry(child, sgl_widget_t, &widget->children, sibling) {
-        sgl_draw_proc(disp, child, ox + child->rect.x, oy + child->rect.y,
-                      &bounds);
+        sgl_draw_process(disp, child, ox + child->rect.x, oy + child->rect.y,
+                         &bounds);
     }
 }
 
@@ -181,7 +196,7 @@ static int sgl_draw_dirty(sgl_display_t *disp, sgl_widget_t *invalidate_widget,
         *flush_area = disp->slice.slice_area;
     int32_t ox, oy;
     sgl_widget_get_origin_coords(invalidate_widget, &ox, &oy);
-    sgl_draw_proc(disp, invalidate_widget, ox, oy, &disp->slice.slice_area);
+    sgl_draw_process(disp, invalidate_widget, ox, oy, &disp->slice.slice_area);
     return ret;
 }
 

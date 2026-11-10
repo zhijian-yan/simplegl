@@ -80,15 +80,6 @@ sgl_area_t sgl_widget_get_bounds(sgl_widget_t *widget) {
     return bounds;
 }
 
-void sgl_invalidate_widget(sgl_widget_t *widget) {
-    sgl_check_param(widget);
-    if (!widget->disp)
-        return;
-    sgl_area_t area = sgl_widget_get_bounds(widget);
-    sgl_invalidate_area(widget->disp, area.left, area.top, area.right,
-                        area.bottom);
-}
-
 void sgl_widget_set_coords(sgl_widget_t *widget, int32_t x, int32_t y) {
     sgl_check_param(widget);
     sgl_invalidate_widget(widget);

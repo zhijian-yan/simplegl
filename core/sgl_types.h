@@ -6,6 +6,7 @@
 
 #include <assert.h>
 #include <stdint.h>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -83,7 +84,6 @@ struct sgl_list_head {
 };
 
 typedef struct sgl_display sgl_display_t;
-
 typedef struct sgl_widget sgl_widget_t;
 
 #ifdef __cplusplus
