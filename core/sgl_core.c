@@ -69,36 +69,31 @@ static inline void sgl_invalidate_root(sgl_display_t *disp) {
     disp->dirty.dirty_count = 1;
 }
 
-static void sgl_merge_invalidate_area(sgl_display_t *disp, sgl_int_t left,
-                                      sgl_int_t top, sgl_int_t right,
-                                      sgl_int_t bottom) {
-    int i = 0;
-    sgl_dirty_t *dirty = &disp->dirty;
-    while (i < dirty->dirty_count) {
-        sgl_area_t *area = &dirty->dirty_areas[i];
-        if (!sgl_area_set_union(area, left, top, right, bottom)) {
-            ++i;
-            continue;
+static void sgl_merge_dirty(sgl_dirty_t *dirty) {
+    sgl_area_t *areas = dirty->dirty_pending_areas;
+    uint8_t count = dirty->pending_count;
+    uint8_t i = 0;
+    while (i < count) {
+        sgl_area_t *area = &areas[i];
+        uint8_t j = (uint8_t)(i + 1);
+        while (j < count) {
+            if (j == i ||
+                !sgl_area_set_union(area, areas[j].left, areas[j].top,
+                                    areas[j].right, areas[j].bottom)) {
+                ++j;
+                continue;
+            }
+            if (j < i)
+                --i;
+            memmove(&areas[j], &areas[j + 1],
+                    (size_t)(count - j - 1) * sizeof(sgl_area_t));
+            --count;
+            area = &areas[i];
+            j = 0;
         }
-        left = area->left;
-        top = area->top;
-        right = area->right;
-        bottom = area->bottom;
-        dirty->dirty_count -= 1;
-        *area = dirty->dirty_areas[dirty->dirty_count];
-        i = 0;
+        ++i;
     }
-    // buffer full
-    if (dirty->dirty_count == dirty->dirty_cap) {
-        sgl_flag_set(uint8_t, dirty->flag, SGL_DIRTY_FLAG_SHIFT,
-                     SGL_FLAG_DIRTY_FULL);
-        sgl_invalidate_root(disp);
-        return;
-    }
-    // add new dirty
-    sgl_set_area(&dirty->dirty_areas[dirty->dirty_count], left, top, right,
-                 bottom);
-    dirty->dirty_count += 1;
+    dirty->pending_count = count;
 }
 
 void sgl_invalidate_area(sgl_display_t *disp, sgl_int_t left, sgl_int_t top,
@@ -110,19 +105,16 @@ void sgl_invalidate_area(sgl_display_t *disp, sgl_int_t left, sgl_int_t top,
     if (!sgl_area_set_intersect(&area, left, top, right, bottom))
         return;
     int lock_state = sgl_lock();
-    if (sgl_flag_get(uint8_t, dirty->flag, SGL_DIRTY_FLAG_SHIFT,
-                     SGL_FLAG_DIRTY_FULL)) {
-        sgl_unlock(lock_state);
-        return;
-    }
-    if (sgl_flag_get(uint8_t, dirty->flag, SGL_DIRTY_FLAG_SHIFT,
-                     SGL_FLAG_DIRTY_FULL_SCREEN)) {
+    if (dirty->dirty_count == dirty->dirty_cap)
+        dirty->flag_full = 1;
+    if (dirty->flag_full) {
         dirty->dirty_count = 1;
         sgl_unlock(lock_state);
         return;
     }
-    sgl_merge_invalidate_area(disp, area.left, area.top, area.right,
-                              area.bottom);
+    sgl_set_area(&dirty->dirty_areas[dirty->dirty_count], area.left, area.top,
+                 area.right, area.bottom);
+    dirty->dirty_count += 1;
     sgl_unlock(lock_state);
 }
 
@@ -204,13 +196,11 @@ int sgl_draw(sgl_display_t *disp, sgl_area_t *flush_area) {
     sgl_check_param(disp);
     sgl_dirty_t *dirty = &disp->dirty;
     if (dirty->state == SGL_STATE_DIRTY_IDLE) {
-        int frame_start = 0;
-        int lock_state = sgl_lock();
         if (dirty->dirty_count) {
-            if (sgl_flag_get(uint8_t, dirty->flag, SGL_DIRTY_FLAG_SHIFT,
-                             SGL_FLAG_DIRTY_FULL_SCREEN)) {
+            int lock_state = sgl_lock();
+            // full refresh
+            if (dirty->flag_full)
                 sgl_invalidate_root(disp);
-            }
             // switch buffer
             sgl_area_t *temp = dirty->dirty_areas;
             dirty->dirty_areas = dirty->dirty_pending_areas;
@@ -218,12 +208,10 @@ int sgl_draw(sgl_display_t *disp, sgl_area_t *flush_area) {
             dirty->pending_count = dirty->dirty_count;
             // reset dirty
             dirty->dirty_count = 0;
-            sgl_flag_reset(uint8_t, dirty->flag, SGL_DIRTY_FLAG_SHIFT,
-                           SGL_FLAG_DIRTY_FULL);
-            frame_start = 1;
-        }
-        sgl_unlock(lock_state);
-        if (frame_start) {
+            dirty->flag_full = 0;
+            sgl_unlock(lock_state);
+            // merge dirty
+            sgl_merge_dirty(dirty);
             // switch state
             dirty->state = SGL_STATE_DIRTY_FLUSHING;
             // a frame start
@@ -265,12 +253,5 @@ void sgl_restore_clip_area(sgl_display_t *disp) {
 
 void sgl_set_invalidate_full_screen(sgl_display_t *disp, uint8_t enable) {
     sgl_check_param(disp);
-    int lock_state = sgl_lock();
-    if (enable)
-        sgl_flag_set(uint8_t, disp->dirty.flag, SGL_DIRTY_FLAG_SHIFT,
-                     SGL_FLAG_DIRTY_FULL_SCREEN);
-    else
-        sgl_flag_reset(uint8_t, disp->dirty.flag, SGL_DIRTY_FLAG_SHIFT,
-                       SGL_FLAG_DIRTY_FULL_SCREEN);
-    sgl_unlock(lock_state);
+    disp->dirty.flag_full = enable;
 }

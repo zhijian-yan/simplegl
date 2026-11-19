@@ -26,7 +26,7 @@ typedef struct {
     sgl_int_t ver_res;
     void *dirty_areas;
     void *dirty_pending_areas;
-    uint16_t dirty_cap;
+    uint8_t dirty_cap;
     uint8_t flag_invalidate_full_screen;
     sgl_pixel_format_t pixel_format;
     void (*frame_start)(void *user_data);
@@ -53,11 +53,11 @@ typedef struct {
 typedef struct {
     sgl_area_t *dirty_areas;
     sgl_area_t *dirty_pending_areas;
-    uint16_t dirty_cap;
-    volatile uint16_t dirty_count;
-    uint16_t pending_count;
+    uint8_t dirty_cap;
+    volatile uint8_t dirty_count;
+    uint8_t pending_count;
     uint8_t state;
-    volatile uint8_t flag;
+    volatile uint8_t flag_full;
 } sgl_dirty_t;
 
 typedef void (*sgl_write_pixel_t)(sgl_framebuffer_t *fb, sgl_int_t x,
