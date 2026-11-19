@@ -12,8 +12,8 @@ extern "C" {
 
 #define SGL_FORMAT_STRING_BUFFERSIZE (128)
 
-static inline void sgl_align(int32_t *x, int32_t *y, int32_t w, int32_t h,
-                             sgl_align_t align) {
+static inline void sgl_align(sgl_int_t *x, sgl_int_t *y, sgl_int_t w,
+                             sgl_int_t h, sgl_align_t align) {
     switch (align) {
         case SGL_ALIGN_UP_LEFT:
             break;
@@ -48,16 +48,17 @@ static inline void sgl_align(int32_t *x, int32_t *y, int32_t w, int32_t h,
     }
 }
 
-void sgl_show_string(sgl_display_t *disp, int32_t x, int32_t y, const char *str,
-                     int32_t length, sgl_align_t align, sgl_dir_t dir,
-                     uint32_t color);
-int sgl_show_format(sgl_display_t *disp, int32_t x, int32_t y,
-                    sgl_align_t align, sgl_dir_t dir, uint32_t color,
+void sgl_show_string(sgl_display_t *disp, sgl_int_t x, sgl_int_t y,
+                     const char *str, sgl_int_t length, sgl_align_t align,
+                     sgl_dir_t dir, sgl_color_t color);
+int sgl_show_format(sgl_display_t *disp, sgl_int_t x, sgl_int_t y,
+                    sgl_align_t align, sgl_dir_t dir, sgl_color_t color,
                     const char *format, ...);
-void sgl_show_string_default(sgl_display_t *disp, int32_t x, int32_t y,
-                             const char *str, int32_t length, uint32_t color);
-int sgl_show_format_default(sgl_display_t *disp, int32_t x, int32_t y,
-                            uint32_t color, const char *format, ...);
+void sgl_show_string_default(sgl_display_t *disp, sgl_int_t x, sgl_int_t y,
+                             const char *str, sgl_int_t length,
+                             sgl_color_t color);
+int sgl_show_format_default(sgl_display_t *disp, sgl_int_t x, sgl_int_t y,
+                            sgl_color_t color, const char *format, ...);
 
 #ifdef __cplusplus
 }

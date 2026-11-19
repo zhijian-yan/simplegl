@@ -12,6 +12,9 @@
 extern "C" {
 #endif
 
+typedef int16_t sgl_int_t;
+typedef uint32_t sgl_color_t;
+
 #define sgl_check_param(param) assert((param) != 0)
 
 #define sgl_flag_get(type, param, shift, flag) \
@@ -65,17 +68,17 @@ typedef enum {
 #define SGL_ALIGN_DEFAULT SGL_ALIGN_UP_LEFT
 
 typedef struct {
-    int32_t left;
-    int32_t top;
-    int32_t right;
-    int32_t bottom;
+    sgl_int_t left;
+    sgl_int_t top;
+    sgl_int_t right;
+    sgl_int_t bottom;
 } sgl_area_t;
 
 typedef struct {
-    int32_t x;
-    int32_t y;
-    int32_t w;
-    int32_t h;
+    sgl_int_t x;
+    sgl_int_t y;
+    sgl_int_t w;
+    sgl_int_t h;
 } sgl_rect_t;
 
 struct sgl_list_head {

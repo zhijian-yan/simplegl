@@ -9,8 +9,8 @@
 #define sgl_widget_walk_to_root(widget, parent) \
     for (parent = widget->parent; parent; parent = parent->parent)
 
-void sgl_widget_init(sgl_widget_t *widget, sgl_widget_class_t *cls, int32_t x,
-                     int32_t y, int32_t w, int32_t h, void *user_data) {
+void sgl_widget_init(sgl_widget_t *widget, sgl_widget_class_t *cls, sgl_int_t x,
+                     sgl_int_t y, sgl_int_t w, sgl_int_t h, void *user_data) {
     sgl_check_param(widget);
     sgl_check_param(cls);
     memset(widget, 0, sizeof(sgl_widget_t));
@@ -29,7 +29,7 @@ void sgl_widget_class_config(sgl_widget_class_t *cls, sgl_widget_draw_t draw) {
 
 static void sgl_widget_set_display(sgl_widget_t *widget, sgl_display_t *disp) {
     sgl_widget_t *child;
-    widget->disp = disp;
+    widget->display = disp;
     sgl_list_for_each_entry(child, sgl_widget_t, &widget->children, sibling) {
         sgl_widget_set_display(child, disp);
     }
@@ -42,7 +42,7 @@ int sgl_widget_add(sgl_widget_t *widget, sgl_widget_t *parent) {
         return -1;
     widget->parent = parent;
     sgl_list_add_tail(&widget->sibling, &parent->children);
-    sgl_widget_set_display(widget, parent->disp);
+    sgl_widget_set_display(widget, parent->display);
     return 0;
 }
 
@@ -55,14 +55,14 @@ int sgl_widget_remove(sgl_widget_t *widget) {
     return 0;
 }
 
-void sgl_widget_get_origin_coords(sgl_widget_t *widget, int32_t *ox,
-                                  int32_t *oy) {
+void sgl_widget_get_origin_coords(sgl_widget_t *widget, sgl_int_t *ox,
+                                  sgl_int_t *oy) {
     sgl_check_param(widget);
     sgl_check_param(ox);
     sgl_check_param(oy);
     sgl_widget_t *parent;
-    int32_t x = widget->rect.x;
-    int32_t y = widget->rect.y;
+    sgl_int_t x = widget->rect.x;
+    sgl_int_t y = widget->rect.y;
     sgl_widget_walk_to_root(widget, parent) {
         x += parent->rect.x;
         y += parent->rect.y;
@@ -80,7 +80,7 @@ sgl_area_t sgl_widget_get_bounds(sgl_widget_t *widget) {
     return bounds;
 }
 
-void sgl_widget_set_coords(sgl_widget_t *widget, int32_t x, int32_t y) {
+void sgl_widget_set_coords(sgl_widget_t *widget, sgl_int_t x, sgl_int_t y) {
     sgl_check_param(widget);
     sgl_invalidate_widget(widget);
     widget->rect.x = x;
@@ -88,7 +88,7 @@ void sgl_widget_set_coords(sgl_widget_t *widget, int32_t x, int32_t y) {
     sgl_invalidate_widget(widget);
 }
 
-void sgl_widget_set_size(sgl_widget_t *widget, int32_t w, int32_t h) {
+void sgl_widget_set_size(sgl_widget_t *widget, sgl_int_t w, sgl_int_t h) {
     sgl_check_param(widget);
     sgl_invalidate_widget(widget);
     widget->rect.w = w;
@@ -96,8 +96,8 @@ void sgl_widget_set_size(sgl_widget_t *widget, int32_t w, int32_t h) {
     sgl_invalidate_widget(widget);
 }
 
-void sgl_widget_set_rect(sgl_widget_t *widget, int32_t x, int32_t y, int32_t w,
-                         int32_t h) {
+void sgl_widget_set_rect(sgl_widget_t *widget, sgl_int_t x, sgl_int_t y,
+                         sgl_int_t w, sgl_int_t h) {
     sgl_check_param(widget);
     sgl_normalize_rect(&x, &y, &w, &h);
     sgl_invalidate_widget(widget);

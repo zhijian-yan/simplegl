@@ -10,10 +10,11 @@
 extern "C" {
 #endif
 
-void sgl_draw_bitmap_1bpp(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
-                          int32_t h, const uint8_t *bitmap, uint32_t color);
-void sgl_draw_bitmap(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
-                     int32_t h, const uint8_t *bitmap);
+void sgl_draw_bitmap_1bpp(sgl_display_t *disp, sgl_int_t x, sgl_int_t y,
+                          sgl_int_t w, sgl_int_t h, const uint8_t *bitmap,
+                          sgl_color_t color);
+void sgl_draw_bitmap(sgl_display_t *disp, sgl_int_t x, sgl_int_t y, sgl_int_t w,
+                     sgl_int_t h, const uint8_t *bitmap);
 
 #ifdef __cplusplus
 }

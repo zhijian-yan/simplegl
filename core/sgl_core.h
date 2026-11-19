@@ -11,11 +11,11 @@ extern "C" {
 #endif
 
 int sgl_draw(sgl_display_t *disp, sgl_area_t *flush_area);
-int sgl_set_clip_area(sgl_display_t *disp, int32_t left, int32_t top,
-                      int32_t right, int32_t bottom);
+int sgl_set_clip_area(sgl_display_t *disp, sgl_int_t left, sgl_int_t top,
+                      sgl_int_t right, sgl_int_t bottom);
 void sgl_restore_clip_area(sgl_display_t *disp);
-void sgl_invalidate_area(sgl_display_t *disp, int32_t left, int32_t top,
-                         int32_t right, int32_t bottom);
+void sgl_invalidate_area(sgl_display_t *disp, sgl_int_t left, sgl_int_t top,
+                         sgl_int_t right, sgl_int_t bottom);
 void sgl_invalidate_widget(sgl_widget_t *widget);
 void sgl_invalidate_display(sgl_display_t *disp);
 void sgl_set_invalidate_full_screen(sgl_display_t *disp, uint8_t enable);

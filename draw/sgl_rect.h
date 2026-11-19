@@ -10,10 +10,11 @@
 extern "C" {
 #endif
 
-void sgl_draw_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
-                   int32_t h, int is_filled, uint32_t color);
-void sgl_draw_round_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
-                         int32_t h, int32_t r, int is_filled, uint32_t color);
+void sgl_draw_rect(sgl_display_t *disp, sgl_int_t x, sgl_int_t y, sgl_int_t w,
+                   sgl_int_t h, int is_filled, sgl_color_t color);
+void sgl_draw_round_rect(sgl_display_t *disp, sgl_int_t x, sgl_int_t y,
+                         sgl_int_t w, sgl_int_t h, sgl_int_t r, int is_filled,
+                         sgl_color_t color);
 
 #ifdef __cplusplus
 }

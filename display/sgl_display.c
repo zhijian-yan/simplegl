@@ -6,7 +6,7 @@
 #include "draw/sgl_common.h"
 #include "sgl_pixel.h"
 
-static int sgl_set_pixel_format(sgl_display_t *disp, int32_t buffer_size,
+static int sgl_set_pixel_format(sgl_display_t *disp, size_t buffer_size,
                                 sgl_pixel_format_t pixel_format);
 
 int sgl_display_init(sgl_display_t *disp, const sgl_display_config_t *config) {
@@ -28,17 +28,17 @@ int sgl_display_init(sgl_display_t *disp, const sgl_display_config_t *config) {
         return -1;
     sgl_widget_init(&disp->root, &disp->background, 0, 0, config->hor_res,
                     config->ver_res, NULL);
-    disp->root.disp = disp;
+    disp->root.display = disp;
     sgl_set_invalidate_full_screen(disp, config->flag_invalidate_full_screen);
     sgl_invalidate_area(disp, 0, 0, config->hor_res - 1, config->ver_res - 1);
     return 0;
 }
 
-static int sgl_set_pixel_format(sgl_display_t *disp, int32_t buffer_size,
+static int sgl_set_pixel_format(sgl_display_t *disp, size_t buffer_size,
                                 sgl_pixel_format_t pixel_format) {
-    int32_t pixel_size = 1;
-    int32_t pixel_shift = 0;
-    int32_t pixel_num;
+    size_t pixel_num;
+    size_t pixel_size = 1;
+    sgl_int_t pixel_shift = 0;
     switch (pixel_format) {
         case SGL_PIXEL_FORMAT_1BIT:
             pixel_size = 1;
@@ -74,20 +74,20 @@ static int sgl_set_pixel_format(sgl_display_t *disp, int32_t buffer_size,
     pixel_num = buffer_size / pixel_size;
     if (pixel_num < disp->root.rect.w)
         return -1;
+    disp->fb.pixel_num = pixel_num;
     disp->fb.pixel_size = pixel_size;
     disp->fb.pixel_shift = pixel_shift;
-    disp->fb.pixel_num = pixel_num;
     disp->fb.buffer_size = pixel_num * pixel_size;
     return 0;
 }
 
 void sgl_clear_framebuffer(sgl_display_t *disp, uint8_t value) {
     sgl_check_param(disp);
-    memset(disp->fb.buffer, value, (size_t)disp->fb.buffer_size);
+    memset(disp->fb.buffer, value, disp->fb.buffer_size);
 }
 
-void sgl_clear_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
-                    int32_t h, uint8_t value) {
+void sgl_clear_rect(sgl_display_t *disp, sgl_int_t x, sgl_int_t y, sgl_int_t w,
+                    sgl_int_t h, uint8_t value) {
     sgl_check_param(disp);
     sgl_normalize_rect(&x, &y, &w, &h);
     sgl_logical_offset(x, y);
@@ -95,19 +95,20 @@ void sgl_clear_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
         return;
     sgl_buffer_offset(x, y);
     sgl_framebuffer_t *fb = &disp->fb;
-    int32_t rect_width_size = w * fb->pixel_size;
-    int32_t slice_width_size = fb->slice_width * fb->pixel_size;
+    size_t rect_width_size = w * fb->pixel_size;
+    size_t slice_width_size = fb->slice_width * fb->pixel_size;
     uint8_t *src = (uint8_t *)fb->buffer;
     src += x * fb->pixel_size + y * slice_width_size;
-    for (int32_t i = 0; i < h; ++i) {
-        memset(src, value, (size_t)rect_width_size);
+    for (sgl_int_t i = 0; i < h; ++i) {
+        memset(src, value, rect_width_size);
         src += slice_width_size;
     }
 }
 
 void sgl_clear_widget(const sgl_widget_t *widget, uint8_t value) {
     sgl_check_param(widget);
-    sgl_clear_rect(widget->disp, 0, 0, widget->rect.w, widget->rect.h, value);
+    sgl_clear_rect(widget->display, 0, 0, widget->rect.w, widget->rect.h,
+                   value);
 }
 
 void sgl_set_framebuffer(sgl_display_t *disp, void *buffer) {
@@ -116,7 +117,7 @@ void sgl_set_framebuffer(sgl_display_t *disp, void *buffer) {
     disp->fb.buffer = buffer;
 }
 
-uint32_t sgl_get_frame_count(sgl_display_t *disp) {
+uint16_t sgl_get_frame_count(sgl_display_t *disp) {
     sgl_check_param(disp);
     return disp->frame_count;
 }

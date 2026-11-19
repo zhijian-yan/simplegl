@@ -3,17 +3,17 @@
 
 #include "sgl_pixel.h"
 
-static inline uint8_t *sgl_get_pixel(sgl_framebuffer_t *fb, int32_t x,
-                                     int32_t y, int32_t pixel_size,
-                                     int32_t shift) {
+static inline uint8_t *sgl_get_pixel(sgl_framebuffer_t *fb, sgl_int_t x,
+                                     sgl_int_t y, size_t pixel_size,
+                                     sgl_int_t shift) {
     return (uint8_t *)fb->buffer +
            (x + (y >> shift) * fb->slice_width) * pixel_size;
 }
 
-void sgl_write_pixel_1bpp(sgl_framebuffer_t *fb, int32_t x, int32_t y,
-                          uint32_t format_color) {
+void sgl_write_pixel_1bpp(sgl_framebuffer_t *fb, sgl_int_t x, sgl_int_t y,
+                          sgl_color_t format_color) {
     uint8_t *pixel = sgl_get_pixel(fb, x, y, 1, 3);
-    uint8_t mask = 1U << (y & 7);
+    uint8_t mask = (uint8_t)(1U << (y & 7));
     switch (format_color) {
         case SGL_MONO_BLACK:
             *(uint8_t *)pixel &= ~mask;
@@ -27,37 +27,37 @@ void sgl_write_pixel_1bpp(sgl_framebuffer_t *fb, int32_t x, int32_t y,
     }
 }
 
-void sgl_write_pixel_8bpp(sgl_framebuffer_t *fb, int32_t x, int32_t y,
-                          uint32_t format_color) {
+void sgl_write_pixel_8bpp(sgl_framebuffer_t *fb, sgl_int_t x, sgl_int_t y,
+                          sgl_color_t format_color) {
     uint8_t *pixel = sgl_get_pixel(fb, x, y, 1, 0);
     *(uint8_t *)pixel = (uint8_t)format_color;
 }
 
-void sgl_write_pixel_16bpp(sgl_framebuffer_t *fb, int32_t x, int32_t y,
-                           uint32_t format_color) {
+void sgl_write_pixel_16bpp(sgl_framebuffer_t *fb, sgl_int_t x, sgl_int_t y,
+                           sgl_color_t format_color) {
     uint8_t *pixel = sgl_get_pixel(fb, x, y, 2, 0);
     *(uint16_t *)pixel = (uint16_t)format_color;
 }
 
-void sgl_write_pixel_24bpp(sgl_framebuffer_t *fb, int32_t x, int32_t y,
-                           uint32_t format_color) {
+void sgl_write_pixel_24bpp(sgl_framebuffer_t *fb, sgl_int_t x, sgl_int_t y,
+                           sgl_color_t format_color) {
     uint8_t *pixel = sgl_get_pixel(fb, x, y, 3, 0);
     *(uint8_t *)pixel = (uint8_t)format_color;
     *((uint8_t *)pixel + 1) = (uint8_t)(format_color >> 8);
     *((uint8_t *)pixel + 2) = (uint8_t)(format_color >> 16);
 }
 
-void sgl_write_pixel_32bpp(sgl_framebuffer_t *fb, int32_t x, int32_t y,
-                           uint32_t format_color) {
+void sgl_write_pixel_32bpp(sgl_framebuffer_t *fb, sgl_int_t x, sgl_int_t y,
+                           sgl_color_t format_color) {
     uint8_t *pixel = sgl_get_pixel(fb, x, y, 4, 0);
     *(uint32_t *)pixel = (uint32_t)format_color;
 }
 
-void sgl_write_pixel_hline_1bpp(sgl_framebuffer_t *fb, int32_t x, int32_t y,
-                                int32_t len, uint32_t format_color) {
+void sgl_write_pixel_hline_1bpp(sgl_framebuffer_t *fb, sgl_int_t x, sgl_int_t y,
+                                sgl_int_t len, sgl_color_t format_color) {
     uint8_t *pixel = sgl_get_pixel(fb, x, y, 1, 3);
-    for (int32_t i = 0; i < len; ++i) {
-        uint8_t mask = 1U << (y & 7);
+    uint8_t mask = (uint8_t)(1U << (y & 7));
+    for (sgl_int_t i = 0; i < len; ++i) {
         switch (format_color) {
             case SGL_MONO_BLACK:
                 *(uint8_t *)pixel &= ~mask;
@@ -73,28 +73,30 @@ void sgl_write_pixel_hline_1bpp(sgl_framebuffer_t *fb, int32_t x, int32_t y,
     }
 }
 
-void sgl_write_pixel_hline_8bpp(sgl_framebuffer_t *fb, int32_t x, int32_t y,
-                                int32_t len, uint32_t format_color) {
+void sgl_write_pixel_hline_8bpp(sgl_framebuffer_t *fb, sgl_int_t x, sgl_int_t y,
+                                sgl_int_t len, sgl_color_t format_color) {
     uint8_t *pixel = sgl_get_pixel(fb, x, y, 1, 0);
-    for (int32_t i = 0; i < len; ++i) {
+    for (sgl_int_t i = 0; i < len; ++i) {
         *(uint8_t *)pixel = (uint8_t)format_color;
         pixel += 1;
     }
 }
 
-void sgl_write_pixel_hline_16bpp(sgl_framebuffer_t *fb, int32_t x, int32_t y,
-                                 int32_t len, uint32_t format_color) {
+void sgl_write_pixel_hline_16bpp(sgl_framebuffer_t *fb, sgl_int_t x,
+                                 sgl_int_t y, sgl_int_t len,
+                                 sgl_color_t format_color) {
     uint8_t *pixel = sgl_get_pixel(fb, x, y, 2, 0);
-    for (int32_t i = 0; i < len; ++i) {
+    for (sgl_int_t i = 0; i < len; ++i) {
         *(uint16_t *)pixel = (uint16_t)format_color;
         pixel += 2;
     }
 }
 
-void sgl_write_pixel_hline_24bpp(sgl_framebuffer_t *fb, int32_t x, int32_t y,
-                                 int32_t len, uint32_t format_color) {
+void sgl_write_pixel_hline_24bpp(sgl_framebuffer_t *fb, sgl_int_t x,
+                                 sgl_int_t y, sgl_int_t len,
+                                 sgl_color_t format_color) {
     uint8_t *pixel = sgl_get_pixel(fb, x, y, 3, 0);
-    for (int32_t i = 0; i < len; ++i) {
+    for (sgl_int_t i = 0; i < len; ++i) {
         *(uint8_t *)pixel = (uint8_t)format_color;
         *((uint8_t *)pixel + 1) = (uint8_t)(format_color >> 8);
         *((uint8_t *)pixel + 2) = (uint8_t)(format_color >> 16);
@@ -102,10 +104,11 @@ void sgl_write_pixel_hline_24bpp(sgl_framebuffer_t *fb, int32_t x, int32_t y,
     }
 }
 
-void sgl_write_pixel_hline_32bpp(sgl_framebuffer_t *fb, int32_t x, int32_t y,
-                                 int32_t len, uint32_t format_color) {
+void sgl_write_pixel_hline_32bpp(sgl_framebuffer_t *fb, sgl_int_t x,
+                                 sgl_int_t y, sgl_int_t len,
+                                 sgl_color_t format_color) {
     uint8_t *pixel = sgl_get_pixel(fb, x, y, 4, 0);
-    for (int32_t i = 0; i < len; ++i) {
+    for (sgl_int_t i = 0; i < len; ++i) {
         *(uint32_t *)pixel = (uint32_t)format_color;
         pixel += 4;
     }

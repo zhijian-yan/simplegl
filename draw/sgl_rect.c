@@ -5,15 +5,16 @@
 #include "sgl_common.h"
 #include "sgl_line.h"
 
-void sgl_draw_circle_section(sgl_display_t *disp, int32_t xc, int32_t yc,
-                             int32_t r, int32_t offset_x, int32_t offset_y,
-                             uint32_t color);
-void sgl_draw_filled_circle_section(sgl_display_t *disp, int32_t xc, int32_t yc,
-                                    int32_t r, int32_t offset_x,
-                                    int32_t offset_y, uint32_t color);
+void sgl_draw_circle_section(sgl_display_t *disp, sgl_int_t xc, sgl_int_t yc,
+                             sgl_int_t r, sgl_int_t offset_x,
+                             sgl_int_t offset_y, sgl_color_t color);
+void sgl_draw_filled_circle_section(sgl_display_t *disp, sgl_int_t xc,
+                                    sgl_int_t yc, sgl_int_t r,
+                                    sgl_int_t offset_x, sgl_int_t offset_y,
+                                    sgl_color_t color);
 
-void sgl_draw_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
-                   int32_t h, int is_filled, uint32_t color) {
+void sgl_draw_rect(sgl_display_t *disp, sgl_int_t x, sgl_int_t y, sgl_int_t w,
+                   sgl_int_t h, int is_filled, sgl_color_t color) {
     sgl_check_param(disp);
     sgl_normalize_rect(&x, &y, &w, &h);
     if (is_filled != 0 || h < 2 || w < 2) {
@@ -30,16 +31,17 @@ void sgl_draw_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
     }
 }
 
-void sgl_draw_round_rect(sgl_display_t *disp, int32_t x, int32_t y, int32_t w,
-                         int32_t h, int32_t r, int is_filled, uint32_t color) {
+void sgl_draw_round_rect(sgl_display_t *disp, sgl_int_t x, sgl_int_t y,
+                         sgl_int_t w, sgl_int_t h, sgl_int_t r, int is_filled,
+                         sgl_color_t color) {
     sgl_check_param(disp);
     sgl_normalize_rect(&x, &y, &w, &h);
     if (r == 0 || w <= 2 || h <= 2) {
         sgl_draw_rect(disp, x, y, w, h, is_filled, color);
         return;
     }
-    int32_t iw = w >> 1;
-    int32_t ih = h >> 1;
+    sgl_int_t iw = w >> 1;
+    sgl_int_t ih = h >> 1;
     if (r < 0)
         r = -r;
     if (r > iw)
