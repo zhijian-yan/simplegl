@@ -72,28 +72,25 @@ static inline void sgl_invalidate_root(sgl_display_t *disp) {
 static void sgl_merge_dirty(sgl_dirty_t *dirty) {
     sgl_area_t *areas = dirty->dirty_pending_areas;
     uint8_t count = dirty->pending_count;
-    uint8_t i = 0;
-    while (i < count) {
-        sgl_area_t *area = &areas[i];
-        uint8_t j = (uint8_t)(i + 1);
-        while (j < count) {
-            if (j == i ||
-                !sgl_area_set_union(area, areas[j].left, areas[j].top,
-                                    areas[j].right, areas[j].bottom)) {
+    uint8_t merged = 0;
+    for (uint8_t i = 0; i < count; ++i) {
+        sgl_area_t area = areas[i];
+        uint8_t j = 0;
+        while (j < merged) {
+            if (!sgl_area_set_union(&areas[j], area.left, area.top, area.right,
+                                    area.bottom)) {
                 ++j;
                 continue;
             }
-            if (j < i)
-                --i;
-            memmove(&areas[j], &areas[j + 1],
-                    (size_t)(count - j - 1) * sizeof(sgl_area_t));
-            --count;
-            area = &areas[i];
+            area = areas[j];
+            --merged;
+            areas[j] = areas[merged];
             j = 0;
         }
-        ++i;
+        areas[merged] = area;
+        ++merged;
     }
-    dirty->pending_count = count;
+    dirty->pending_count = merged;
 }
 
 void sgl_invalidate_area(sgl_display_t *disp, sgl_int_t left, sgl_int_t top,
